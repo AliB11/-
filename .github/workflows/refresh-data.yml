@@ -6,6 +6,9 @@ on:
     - cron: '30 3 * * *'
     # هر پنجشنبه ساعت ۰۵:۰۰ UTC — بازبینی هفتگی جامع‌تر
     - cron: '0 5 * * 4'
+  # موقت: اجرای آزمایشی روی pull request برای سنجش سلامت منابع
+  pull_request:
+    types: [opened, synchronize]
   workflow_dispatch:
     inputs:
       limit:
@@ -60,7 +63,7 @@ jobs:
         env:
           LIMIT: ${{ inputs.limit || '120' }}
         run: |
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
+          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ inputs.dry_run }}" = "true" ]; then
             node tools/collect.mjs --limit="$LIMIT" --dry-run --verbose
           else
             node tools/collect.mjs --limit="$LIMIT" --verbose
@@ -73,7 +76,7 @@ jobs:
         run: node --test "tests/*.test.mjs"
 
       - name: بازسازی بسته داده
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ github.event_name != 'pull_request' && inputs.dry_run != true }}
         run: node tools/build-bundle.mjs
 
       - name: بررسی تغییرات
@@ -88,7 +91,7 @@ jobs:
           fi
 
       - name: ثبت تغییرات داده
-        if: ${{ steps.diff.outputs.changed == 'true' && inputs.dry_run != true }}
+        if: ${{ github.event_name != 'pull_request' && steps.diff.outputs.changed == 'true' && inputs.dry_run != true }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
