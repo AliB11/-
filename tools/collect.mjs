@@ -94,6 +94,34 @@ function matchKey(p) {
  * @param {object[]} incoming
  * @returns {{merged:object[], stats:{added:number, updated:number, unchanged:number, restored:number}}}
  */
+/**
+ * مقایسه ساختاری دو مقدار JSON-پذیر.
+ *
+ * چرا لازم است: رکوردهای تازه از تجزیه HTML ساخته می‌شوند و همیشه شیء
+ * تازه‌اند. مقایسه با `===` دو شیء با محتوای یکسان را «متفاوت» می‌بیند و
+ * نتیجه‌اش این است که هر اجرا همه رکوردها را «به‌روزشده» گزارش می‌کند.
+ *
+ * @param {unknown} a
+ * @param {unknown} b
+ */
+export function deepEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return a === b;
+  if (typeof a !== typeof b) return false;
+  if (typeof a !== 'object') return a === b;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+
+  if (Array.isArray(a)) {
+    if (a.length !== b.length) return false;
+    return a.every((item, i) => deepEqual(item, b[i]));
+  }
+
+  const ka = Object.keys(a).sort();
+  const kb = Object.keys(b).sort();
+  if (ka.length !== kb.length) return false;
+  return ka.every((k, i) => k === kb[i] && deepEqual(a[k], b[k]));
+}
+
 export function mergeProducts(existing, incoming) {
   const byId = new Map(existing.map((p) => [p.id, { ...p }]));
   const byKey = new Map(existing.map((p) => [matchKey(p), p.id]));
@@ -142,9 +170,12 @@ export function mergeProducts(existing, incoming) {
       if (skipEmpty && (v === null || v === undefined || v === '')) continue;
       if (skipEmpty && Array.isArray(v) && v.length === 0) continue;
       const prev = next[k];
+      // مقایسه ارجاعی برای اشیای تودرتو («extra») همیشه «متفاوت» می‌داد و
+      // هر رکورد خودکار در هر اجرا «به‌روزشده» شمرده می‌شد؛ آمار ادغام
+      // بی‌معنا می‌شد. مقایسه ساختاری، همین را درست می‌کند.
       const same =
-        Array.isArray(prev) && Array.isArray(v)
-          ? JSON.stringify(prev) === JSON.stringify(v)
+        (Array.isArray(prev) || (prev && typeof prev === 'object')) && v && typeof v === 'object'
+          ? deepEqual(prev, v)
           : prev === v;
       if (!same) {
         next[k] = v;
@@ -221,8 +252,19 @@ async function main() {
 
   if (!OFFLINE) {
     // ۱) رده
+    // چرخش بازبینی: قدیمی‌ترین رکوردهای خودکار از نظر lastSeen اول صف
+    // می‌ایستند. با سهمی از سقف واکشی، همه رکوردها در چند روز نوبت
+    // بازبینی می‌گیرند و مقدارهای نادرست قدیمی اصلاح می‌شوند.
+    const rotationQuota = Math.max(10, Math.round(LIMIT / 4));
+    const refreshUrls = dataset.products
+      .filter((p) => p.autoDiscovered === true && p.source?.url)
+      .sort((a, b) => String(a.lastSeen || '').localeCompare(String(b.lastSeen || '')))
+      .slice(0, rotationQuota)
+      .map((p) => p.source.url);
+    vlog(`چرخش بازبینی: ${refreshUrls.length} رکورد قدیمی در نوبت بازبینی`);
+
     const radeResult = await runSource('rade', () =>
-      rade.collect({ limit: LIMIT, concurrency: 5, log: vlog }),
+      rade.collect({ limit: LIMIT, concurrency: 5, refreshUrls, log: vlog }),
     );
     if (radeResult.ok) {
       incoming = incoming.concat(radeResult.data.products);
@@ -231,6 +273,8 @@ async function main() {
         ok: true,
         discovered: radeResult.data.discovered,
         attempted: radeResult.data.attempted,
+        fresh: radeResult.data.fresh,
+        rotated: radeResult.data.rotated,
         parsed: radeResult.data.parsed,
         failures: radeResult.data.failures.length,
         ms: radeResult.ms,

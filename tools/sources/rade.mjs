@@ -372,22 +372,64 @@ export async function fetchLoanIndex() {
 }
 
 /**
+ * انتخاب مجموعه واکشی: تازه‌ترین صفحه‌ها به‌همراه چرخش بازبینی.
+ *
+ * این تابع عمداً خالص است (هیچ درخواست شبکه‌ای ندارد) تا بتوان تصمیم‌گیری
+ * آن را مستقل آزمود. انتخاب اشتباه در اینجا یعنی یا صفحه‌های مهم‌تر
+ * واکشی نمی‌شوند، یا رکورد قدیمی هرگز بازبینی نمی‌شود.
+ *
+ * @param {{url:string,lastmod?:string|null}[]} index
+ * @param {{limit?:number, sinceMonths?:number, refreshUrls?:string[], now?:number}} [opts]
+ * @returns {{selected:{url:string,lastmod:string|null}[], rotation:{url:string,lastmod:null}[]}}
+ */
+export function selectFetchSet(index, opts = {}) {
+  const { limit = 120, sinceMonths = 18, refreshUrls = [], now = Date.now() } = opts;
+
+  const cutoff = new Date(now - sinceMonths * 30 * 86_400_000).toISOString().slice(0, 10);
+  const fresh = index.filter((e) => !e.lastmod || e.lastmod >= cutoff);
+
+  // اگر بریدن زمانی همه چیز را حذف کند، محدودیت نادیده گرفته می‌شود:
+  // دادن داده کهنه بهتر از ندادن داده است.
+  const pool = fresh.length ? fresh : index;
+
+  const selected = [...pool]
+    .sort((a, b) => String(b.lastmod).localeCompare(String(a.lastmod)) || a.url.localeCompare(b.url))
+    .slice(0, limit);
+
+  const chosen = new Set(selected.map((e) => e.url));
+  const rotation = [...new Set(refreshUrls)]
+    .filter((url) => url && !chosen.has(url) && url.startsWith(BASE))
+    .map((url) => ({ url, lastmod: null }));
+
+  return { selected, rotation };
+}
+
+/**
  * دریافت و تبدیل صفحات وام.
- * @param {{limit?:number, concurrency?:number, sinceMonths?:number, log?:Function}} [opts]
+ *
+ * دو نوع صفحه واکشی می‌شود:
+ *
+ *   ۱. تازه‌ترین‌ها بر پایه lastmod نقشه سایت — چیزهایی که احتمال تغییرشان
+ *      بیشتر است.
+ *   ۲. چرخش بازبینی — نشانی‌هایی که در اجراهای گذشته دیده شده‌اند و
+ *      قدیمی‌ترین lastSeen را دارند. بدون این بخش، رکوردی که یک بار با
+ *      تجزیه‌کننده معیوب ثبت شده باشد تا ابد خراب می‌ماند، چون صفحه‌اش
+ *      دیگر در فهرست تازه‌ها نیست و هرگز دوباره خوانده نمی‌شود.
+ *
+ * @param {{limit?:number, concurrency?:number, sinceMonths?:number, refreshUrls?:string[], log?:Function}} [opts]
  */
 export async function collect(opts = {}) {
-  const { limit = 120, concurrency = 5, sinceMonths = 18, log = () => {} } = opts;
+  const { limit = 120, concurrency = 5, sinceMonths = 18, refreshUrls = [], log = () => {} } = opts;
   const index = await fetchLoanIndex();
   log(`رده: ${index.length} صفحه وام در فهرست یافت شد`);
 
-  const cutoff = new Date(Date.now() - sinceMonths * 30 * 86_400_000).toISOString().slice(0, 10);
-  const fresh = index.filter((e) => !e.lastmod || e.lastmod >= cutoff);
-  const selected = (fresh.length ? fresh : index)
-    .sort((a, b) => String(b.lastmod).localeCompare(String(a.lastmod)))
-    .slice(0, limit);
-  log(`رده: ${selected.length} صفحه برای واکشی انتخاب شد`);
+  const { selected, rotation } = selectFetchSet(index, { limit, sinceMonths, refreshUrls });
+  log(`رده: ${selected.length} صفحه تازه برای واکشی انتخاب شد`);
+  if (rotation.length) log(`رده: ${rotation.length} صفحه قدیمی برای بازبینی چرخشی`);
 
-  const tasks = selected.map((entry) => async () => {
+  const work = [...selected, ...rotation];
+
+  const tasks = work.map((entry) => async () => {
     const result = await runSource(`rade:${entry.url}`, async () => {
       const html = await get(entry.url, { timeout: 25_000, retries: 1 });
       return mapToProduct(entry.url, html);
@@ -402,7 +444,9 @@ export async function collect(opts = {}) {
   return {
     source: 'rade.ir',
     discovered: index.length,
-    attempted: selected.length,
+    attempted: work.length,
+    fresh: selected.length,
+    rotated: rotation.length,
     parsed: products.length,
     failures: failed.map((f) => ({ url: f.entry.url, error: f.error })),
     products,

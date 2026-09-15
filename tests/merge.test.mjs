@@ -1,10 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeProducts, sortDeep } from '../tools/collect.mjs';
-import {
-  mapToProduct, extractSpecTable, specSel, tidyLabel,
-  parseTermMonths, categoryFromUrl, benefitFromRate, isFeeBased, parseRatioPercent,
-} from '../tools/sources/rade.mjs';
+import { mergeProducts, sortDeep, deepEqual } from '../tools/collect.mjs';
+import { mapToProduct, extractSpecTable, specSel, tidyLabel, parseTermMonths, categoryFromUrl, benefitFromRate, isFeeBased, parseRatioPercent, selectFetchSet } from '../tools/sources/rade.mjs';
 
 test('رکورد جدید افزوده می‌شود', () => {
   const existing = [{ id: 'a', bank: 'بانک الف', product: 'محصول ۱', category: 'loans' }];
@@ -360,4 +357,167 @@ test('رکورد خودکار با تجزیه تازه پاک می‌شود، ر
   const curatedAfter = curatedResult.merged.find((p) => p.id === 'curated-1');
   assert.equal(curatedAfter.maxAmount, 300_000_000, 'مقدار دست‌نویس باید حفظ شود');
   assert.equal(curatedAfter.termMonths, 60, 'مدت دست‌نویس باید حفظ شود');
+});
+
+/* ---------- چرخش بازبینی ----------
+ *
+ * اگر خط لوله فقط تازه‌ترین صفحه‌ها را واکشی کند، رکوردی که یک بار با
+ * تجزیه‌کننده معیوب ثبت شده باشد تا ابد خراب می‌ماند: صفحه‌اش دیگر در
+ * فهرست تازه‌ها نیست و هرگز دوباره خوانده نمی‌شود. چرخش بازبینی این
+ * چرخه را می‌بندد.
+ */
+
+test('چرخش بازبینی، رکوردهای قدیمی را در نوبت واکشی می‌گذارد', () => {
+  const index = [
+    { url: 'https://www.rade.ir/loan-cash-loan/1-a/', lastmod: '2026-09-14' },
+    { url: 'https://www.rade.ir/loan-cash-loan/2-ب/', lastmod: '2020-01-01' },
+    { url: 'https://www.rade.ir/loan-cash-loan/3-c/', lastmod: '2026-08-01' },
+  ];
+
+  const { selected, rotation } = selectFetchSet(index, {
+    limit: 2,
+    sinceMonths: 18,
+    now: Date.parse('2026-09-15'),
+    refreshUrls: [
+      'https://www.rade.ir/loan-cash-loan/2-ب/',
+      'https://www.rade.ir/loan-cash-loan/1-a/',
+      'https://evil.example.com/x',
+      'https://www.rade.ir/loan-cash-loan/2-ب/',
+    ],
+  });
+
+  assert.deepEqual(selected.map((e) => e.url), [
+    'https://www.rade.ir/loan-cash-loan/1-a/',
+    'https://www.rade.ir/loan-cash-loan/3-c/',
+  ], 'تازه‌ترین‌ها اول');
+
+  assert.deepEqual(rotation.map((e) => e.url), ['https://www.rade.ir/loan-cash-loan/2-ب/'],
+    'صفحه قدیمی در چرخش بیاید، صفحه تکراری و دامنه غریبه نه');
+});
+
+test('چرخش بازبینی دامنه غریبه را نمی‌پذیرد و در نبود صفحه تازه محدودیت زمانی را نادیده می‌گیرد', () => {
+  const index = [{ url: 'https://www.rade.ir/loan-cash-loan/1-a/', lastmod: '2019-01-01' }];
+
+  const { selected } = selectFetchSet(index, {
+    limit: 5, sinceMonths: 6, now: Date.parse('2026-09-15'), refreshUrls: [],
+  });
+  assert.equal(selected.length, 1, 'نبود داده تازه نباید فهرست خالی بدهد');
+
+  // نشانی خارج از دامنه منبع، حتی اگر در داده ذخیره شده باشد، واکشی نمی‌شود
+  const { rotation } = selectFetchSet(index, {
+    refreshUrls: ['https://mirror.example.org/loan/9/'], now: Date.parse('2026-09-15'),
+  });
+  assert.equal(rotation.length, 0, 'دامنه غیرمجاز نباید واکشی شود');
+});
+
+/* ---------- بسته چند‌طرحی روی ساختار واقعی صفحه ----------
+ *
+ * صفحه «طرح تسهیلات ایران‌یار» یک بسته ۹ وامی است و سقف نوشته‌شده در ستون
+ * «سقف وام» (۱۰۰ میلیارد تومان، ویژه کارگزاری‌ها) به هیچ محصول منفردی
+ * تعلق ندارد. فهرست طرح‌ها در «توضیحات» است، نه در ستون سقف — و همین
+ * جابه‌جایی باعث می‌شد تشخیص قبلی هرگز فعال نشود.
+ */
+
+test('بسته چند‌طرحی از روی ساختار واقعی صفحه تشخیص داده می‌شود', () => {
+  const descCell = [
+    '<h2>چند وام در یک طرح</h2>',
+    'طرح ایرانیار بانک ایران‌زمین شامل یک پکیج ۹ وامی است که هرکدام شرایط، سود و سقف متفاوتی دارند.',
+    '<h3><strong>۱- طرح کار نیک:</strong></h3>',
+    '<h3><strong>۲- طرح غیرحضوری فراز:</strong></h3>',
+    '<h3><strong>۳- طرح کالایار:</strong></h3>',
+    '<h3><strong>۹- طرح کارگزاران:</strong></h3>',
+  ].join('<br>');
+
+  const html = `<html><head><meta property="og:title" content="طرح تسهیلات ایران‌یار بانک ایران زمین"></head>
+<body><h1>طرح تسهیلات ایران‌یار بانک ایران زمین</h1>
+<table><tbody>
+<tr><td>نام وام</td><td>طرح تسهیلات ایران‌یار بانک ایران زمین</td></tr>
+<tr><td>بانک</td><td>بانک ایران زمین</td></tr>
+<tr><td>نرخ سود وام</td><td>23 ٪<br>این طرح شامل 9 وام مختلف است که سود آنها بین 23-1 درصد است</td></tr>
+<tr><td>سقف وام</td><td>100میلیارد تومان<br>سقف تسهیلات در طرح‌های مختلف متفاوت است.</td></tr>
+<tr><td>حداکثر زمان بازپرداخت</td><td>48ماه<br>طرح‌های مختلف این وام بین 15 روز تا 48 ماه بازپرداخت دارد</td></tr>
+<tr><td>توضیحات</td><td>${descCell}</td></tr>
+</tbody></table>
+<p>آخرین به‌روز رسانی:26 آذر 1404</p></body></html>`;
+
+  const product = mapToProduct('https://www.rade.ir/loan-goods-loan/704680-طرح/', html);
+  assert.ok(product, 'صفحه باید تجزیه شود');
+  assert.equal(product.multiPlan, true, 'بسته ۹ وامی باید تشخیص داده شود');
+  assert.equal(product.maxAmount, null, 'سقف بسته، سقف یک محصول نیست');
+  assert.equal(product.termMonths, null, 'مدت بسته هم منفرد نیست');
+  assert.equal(product.ceilingContingent, true);
+  assert.equal(product.confidence, 'low');
+  assert.ok(product.extra.plans >= 4, `تعداد طرح‌ها باید ثبت شود، بود ${product.extra.plans}`);
+  assert.ok(product.extra.note, 'یادداشت توضیحی ثبت شود');
+  // متن توصیفی سقف باید حفظ شود؛ کاربر باید بداند چرا سقف عددی ندارد
+  assert.match(product.amountLabel, /100/, 'متن اصلی سقف باید بماند');
+});
+
+test('صفحه تک‌طرحی، بسته چند‌طرحی تشخیص داده نمی‌شود', () => {
+  const html = `<html><head><title>وام میکاکارت توبانک</title></head>
+<body><h1>وام میکاکارت توبانک بانک گردشگری</h1>
+<table><tbody>
+<tr><td>نام وام</td><td>وام میکاکارت توبانک</td></tr>
+<tr><td>بانک</td><td>بانک گردشگری</td></tr>
+<tr><td>نرخ سود وام</td><td>23 ٪</td></tr>
+<tr><td>سقف وام</td><td>100میلیون تومان<br>بر اساس رتبه اعتباری متقاضی</td></tr>
+<tr><td>حداکثر زمان بازپرداخت</td><td>12ماه</td></tr>
+<tr><td>توضیحات</td><td>کارت اعتباری میکاکارت برای خریدهای روزمره</td></tr>
+</tbody></table>
+<p>آخرین به‌روز رسانی:24 شهریور 1405</p></body></html>`;
+
+  const product = mapToProduct('https://www.rade.ir/loan-goods-loan/708732-وام/', html);
+  assert.ok(product);
+  assert.equal(product.multiPlan, false, 'صفحه تک‌طرحی نباید بسته شمرده شود');
+  assert.equal(product.maxAmount, 100_000_000, 'سقف باید بماند');
+  assert.equal(product.termMonths, 12);
+  assert.equal(product.ceilingContingent, true, 'سقف مشروط به رتبه اعتباری است');
+});
+
+/* ---------- مقایسه ساختاری در ادغام ----------
+ *
+ * رکوردهای تازه از تجزیه HTML ساخته می‌شوند، پس همیشه شیء تازه‌اند. اگر
+ * مقایسه با ارجاع انجام شود، رکوردی با محتوای کاملاً یکسان هم «به‌روزشده»
+ * شمرده می‌شود و آمار ادغام بی‌معنا می‌گردد.
+ */
+
+test('deepEqual محتوای یکسان را یکسان می‌بیند، نه ارجاع را', () => {
+  assert.equal(deepEqual({ a: 1, b: [1, 2] }, { a: 1, b: [1, 2] }), true);
+  assert.equal(deepEqual({ a: 1 }, { a: 1, b: 2 }), false);
+  assert.equal(deepEqual([1, [2, { x: 3 }]], [1, [2, { x: 3 }]]), true);
+  assert.equal(deepEqual([1, 2], [2, 1]), false, 'ترتیب آرایه مهم است');
+  assert.equal(deepEqual({ a: 1, b: 2 }, { b: 2, a: 1 }), true, 'ترتیب کلید مهم نیست');
+  assert.equal(deepEqual(null, undefined), false);
+  assert.equal(deepEqual('x', 'x'), true);
+});
+
+test('رکورد خودکار با محتوای یکسان، «به‌روزشده» شمرده نمی‌شود', () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const current = {
+    id: 'rade-9', bank: 'بانک آزمون', product: 'وام آزمون', category: 'loans',
+    rate: 23, maxAmount: 100_000_000, autoDiscovered: true,
+    lastUpdated: '2026-08-01', lastSeen: today, stale: false,
+    extra: { loanType: 'وام نقدی', installment: null, note: 'بسته چند‌طرحی' },
+    source: { title: 'رده — وام آزمون', url: 'https://www.rade.ir/x/9-y/', kind: 'aggregator', checked: '2026-09-14' },
+  };
+
+  // همان محتوا، ولی شیء تازه با همان ساختار تودرتو
+  const incoming = [{
+    ...current,
+    extra: { loanType: 'وام نقدی', installment: null, note: 'بسته چند‌طرحی' },
+    source: { ...current.source },
+  }];
+
+  // نکته: lastSeen هر اجرا به امروز می‌رود و همین یک تغییر واقعی است. برای
+  // سنجیدن مقایسه ساختاری، آخرین بازبینی را امروز می‌گذاریم تا تنها
+  // تفاوت ممکن، محتوای تودرتو باشد.
+  const { stats, merged } = mergeProducts([current], incoming);
+  assert.equal(stats.updated, 0, 'محتوای تودرتوی یکسان نباید به‌روزرسانی شمرده شود');
+  assert.equal(stats.unchanged, 1);
+  assert.equal(merged[0].extra.note, 'بسته چند‌طرحی', 'محتوای تودرتو حفظ شود');
+
+  // و اگر واقعاً چیزی تغییر کند، باید «به‌روزشده» شمرده شود
+  const changed = mergeProducts([current], [{ ...current, extra: { ...current.extra, note: 'تغییر کرد' } }]);
+  assert.equal(changed.stats.updated, 1, 'تغییر واقعی باید ثبت شود');
+  assert.equal(changed.merged[0].extra.note, 'تغییر کرد');
 });
