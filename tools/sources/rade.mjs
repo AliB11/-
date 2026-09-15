@@ -8,7 +8,7 @@
  */
 
 import { get, pool, runSource } from '../lib/http.mjs';
-import { normalizeText, stripTags, parseTomanAmount, parseRates, toNumber } from '../lib/parse.mjs';
+import { foldForMatch, normalizeText, parseRates, parseTomanAmount, stripTags, toNumber } from '../lib/parse.mjs';
 import { parseJalaliDate } from '../lib/jalali.mjs';
 
 export const BASE = 'https://www.rade.ir';
@@ -28,6 +28,12 @@ const CATEGORY_MAP = {
 
 /** برچسب‌های جدول مشخصات که باید استخراج شوند */
 const LABELS = [
+  'نرخ سود سپرده پس از وام',
+  'هزینه فرصت مسدودی',
+  'نسبت مبلغ وام به میزان سپرده',
+  'حساب سپرده لازم',
+  'مدت زمان مسدودی سپرده',
+  'مدت زمان خواب سپرده',
   'نام وام',
   'بانک',
   'نوع وام',
@@ -56,11 +62,30 @@ const LABELS = [
   'توضیحات',
 ];
 
+/** مجموعه برچسب‌های مجاز به شکل تاشده (نیم‌فاصله‌ناوابسته) */
+const LABEL_SET = new Set(LABELS.map((l) => foldForMatch(l)));
+
 /**
  * سطرهای جدول HTML را به نگاشت برچسب→مقدار تبدیل می‌کند.
  * @param {string} html
  * @returns {Record<string,string>}
  */
+/**
+ * خواندن یک ردیف از جدول مشخصات، مستقل از نیم‌فاصله.
+ *
+ * صفحه‌های رده در جای نیم‌فاصله (U+200C) ناسازگارند؛ «هزینه‌های جانبی» در یک
+ * صفحه و «هزینه های جانبی» در صفحه دیگر. اگر برچسب را عیناً جست‌وجو کنیم،
+ * بی‌سروصدا داده از دست می‌رود. این تابع هر دو حالت را یکی می‌کند.
+ *
+ * @param {Record<string,string>} spec خروجی extractSpecTable
+ * @param {string} label نام برچسب
+ * @param {'value'|'detail'|'raw'} [part]
+ */
+export function specSel(spec, label, part = 'value') {
+  const key = part === 'raw' ? foldForMatch(label) : `${foldForMatch(label)}__${part === 'detail' ? 'detail' : 'value'}`;
+  return spec[key] ?? '';
+}
+
 export function extractSpecTable(html) {
   const out = {};
   const rows = String(html).match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
@@ -69,8 +94,10 @@ export function extractSpecTable(html) {
     const cells = row.match(/<t[dh][^>]*>[\s\S]*?<\/t[dh]>/gi);
     if (!cells || cells.length < 2) continue;
 
-    const label = normalizeText(stripTags(cells[0])).replace(/[:\s]+$/, '');
-    if (!LABELS.includes(label)) continue;
+    // کلید با foldForMatch نرمال می‌شود تا تفاوت نیم‌فاصله و فاصله در برچسب
+    // (مثلاً «هزینه‌های جانبی» در برابر «هزینه های جانبی») باعث حذف ردیف نشود.
+    const label = foldForMatch(stripTags(cells[0]));
+    if (!LABEL_SET.has(label)) continue;
 
     // مقدار اصلی = بخش قبل از <br>، توضیح = بقیه
     const valueHtml = cells.slice(1).join(' ');
@@ -97,6 +124,18 @@ export function extractTitle(html) {
   return og ? normalizeText(og[1]) : '';
 }
 
+/**
+ * مرتب‌سازی فاصله در متنی که برای نمایش به کاربر می‌رود.
+ * صفحه‌های رده عدد و یکا را بی‌فاصله می‌نویسند («100میلیون تومان»).
+ */
+export function tidyLabel(text) {
+  return normalizeText(String(text ?? ''))
+    // ارقام فارسی هم پشتیبانی می‌شوند؛ صفحه‌ها یکدست نیستند
+    .replace(/([\d۰-۹])(?=(?:میلیون|میلیارد|هزار|ماه|ماهه|٪|%))/g, '$1 ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 /** تبدیل مقدار «حداکثر زمان بازپرداخت» به تعداد ماه */
 export function parseTermMonths(text) {
   const t = normalizeText(text);
@@ -105,6 +144,38 @@ export function parseTermMonths(text) {
   const years = t.match(/(\d{1,2})\s*(?:سال|ساله)/);
   if (years) return Number(years[1]) * 12;
   return null;
+}
+
+/**
+ * آیا هزینه این محصول «کارمزد یک‌بار» است یا «سود سالانه»؟
+ *
+ * وام‌های قرض‌الحسنه کارمزد یک‌باری می‌گیرند که روی کل اصل بسته می‌شود؛ وام‌های
+ * سودمحور نرخ سالانه دارند. تفکیک این دو برای محاسبه قسط حیاتی است، چون
+ * تفسیر نادرست کارمزد ۴٪ به‌عنوان نرخ سالانه، هزینه وام ده‌ساله را حدود ده
+ * برابر واقعیت نشان می‌دهد.
+ *
+ * @param {string} url نشانی صفحه
+ * @param {string} title عنوان محصول
+ * @param {{category:string}} meta دسته‌بندی
+ * @param {number|null} rate نرخ استخراج‌شده
+ */
+export function isFeeBased(url, title, meta, rate) {
+  if (meta.category !== 'loans') return false;
+  // نرخ‌های ۲۳٪ و ۲۴٪ سقف مصوب سود هستند، نه کارمزد
+  if (rate == null || rate >= 20) return false;
+
+  const text = `${url} ${title}`;
+
+  // ۱) صریح‌ترین نشانه: مسیر یا عنوان قرض‌الحسنه
+  if (/قرض‌الحسنه|قرض الحسنه|interest-free-loan/i.test(text)) return true;
+
+  // ۲) وام‌های حمایتی (ازدواج، فرزندآوری، ایثارگران، بازنشستگان) کارمزد ثابت
+  //    کم و غیرمرکب دارند و نرخ آن‌ها یک‌بار روی اصل بسته می‌شود
+  if (rate <= 10 && /حمایتی|ازدواج|فرزندآوری|ایثارگر|بازنشست/.test(text)) return true;
+
+  // ۳) نرخ‌های بسیار پایین در هر عنوان دیگری هم کارمزد یک‌بار است، چون هیچ
+  //    تسهیلات سودمحوری زیر ۶٪ عرضه نمی‌شود
+  return rate <= 6;
 }
 
 /**
@@ -139,27 +210,37 @@ export function benefitFromRate(rate, category) {
  */
 export function mapToProduct(url, html) {
   const spec = extractSpecTable(html);
-  if (!spec['نام وام__value'] && !spec['بانک__value']) return null;
+  if (!specSel(spec, 'نام وام') && !specSel(spec, 'بانک')) return null;
 
   const meta = categoryFromUrl(url);
-  const title = spec['نام وام__value'] || extractTitle(html);
-  const bank = spec['بانک__value'] || 'نامشخص';
+  const title = specSel(spec, 'نام وام') || extractTitle(html);
+  const bank = specSel(spec, 'بانک') || 'نامشخص';
 
-  const rateList = parseRates(spec['نرخ سود وام'] || '');
+  const rateList = parseRates(specSel(spec, 'نرخ سود وام', 'raw'));
   const rate = rateList.length ? rateList[0] : null;
 
-  const maxAmount = parseTomanAmount(spec['سقف وام__value'] || '');
-  const minAmount = parseTomanAmount(spec['کف وام__value'] || '');
-  const installment = parseTomanAmount(spec['مبلغ قسط__value'] || '');
-  const termMonths = parseTermMonths(spec['حداکثر زمان بازپرداخت'] || '');
-  const depositRate = parseRates(spec['نرخ سود سپرده'] || '');
+  const maxAmount = parseTomanAmount(specSel(spec, 'سقف وام'));
+  const minAmount = parseTomanAmount(specSel(spec, 'کف وام'));
+  const installment = parseTomanAmount(specSel(spec, 'مبلغ قسط'));
+  const termMonths = parseTermMonths(specSel(spec, 'حداکثر زمان بازپرداخت'));
+  const depositRate = parseRates(specSel(spec, 'نرخ سود سپرده', 'raw'));
 
-  const guarantee = spec['نوع ضمانت__value'] || '';
+  const maxDetail = specSel(spec, 'سقف وام', 'detail');
+  const guarantee = specSel(spec, 'نوع ضمانت');
   const hasGuarantor = /ضامن/.test(guarantee);
-  const needsDeposit = /بله|دارد|الزام/.test(spec['نیاز به سپرده__value'] || '');
+  const needsDeposit = /بله|دارد|الزام/.test(specSel(spec, 'نیاز به سپرده'));
 
+  // سقف مشروط: اگر خود صفحه بگوید سقف بر پایه رتبه اعتباری، میانگین حساب یا
+  // نسبت سپرده تعیین می‌شود، سقف یک «حق قطعی» نیست.
+  const ratio = normalizeText(specSel(spec, 'نسبت مبلغ وام به میزان سپرده', 'raw'));
+  const ceilingContingent =
+    /رتبه\s*اعتباری|اعتبارسنجی|میانگین\s*حساب|سابقه\s*حساب|میزان\s*سپرده|ضوابط/.test(maxDetail) ||
+    (ratio !== '' && !/۱۰۰|100/.test(ratio));
+
+  // «آخرین به‌روز رسانی» و «آخرین به روز رسانی» هر دو دیده می‌شوند؛
+  // [\s\u200c\u200d]* نیم‌فاصله و نیم‌فاصله مجازی را هم می‌پذیرد.
   const updatedRaw = normalizeText(stripTags(html)).match(
-    /آخرین\s*به\s*روز\s*رسانی\s*:?\s*([^|]{4,40})/,
+    /آخرین[\s\u200c\u200d]*به[\s\u200c\u200d]*روز[\s\u200c\u200d]*رسانی[\s\u200c\u200d]*:?[\s\u200c\u200d]*([^|]{4,40})/,
   );
   const lastUpdated = parseJalaliDate(updatedRaw?.[1]) || parseJalaliDate(html) || null;
 
@@ -167,7 +248,10 @@ export function mapToProduct(url, html) {
   const numericId = slug.match(/^(\d+)/)?.[1] || slug.slice(0, 24);
   const id = `rade-${numericId}`.replace(/[^a-z0-9-]/g, '-').toLowerCase();
 
-  const descParts = [spec['توضیحات__detail'] || spec['توضیحات'] || '']
+  // توضیحات صفحه چند پاراگراف جداشده با <br> است. اگر فقط بخش «detail» را
+  // برداریم، متن از میان می‌رود و توضیح ناقص می‌ماند؛ پس هر دو بخش با هم
+  // ترکیب می‌شوند.
+  const descParts = [specSel(spec, 'توضیحات', 'value'), specSel(spec, 'توضیحات', 'detail')]
     .map(normalizeText)
     .filter(Boolean);
 
@@ -178,26 +262,33 @@ export function mapToProduct(url, html) {
     category: meta.category,
     subcategory: meta.subcategory,
     rate: rate ?? (depositRate[0] ?? 0),
-    rateKind: meta.category === 'loans' && rate === 4 ? 'fee' : 'profit',
+    // کارمزد در برابر سود سالانه.
+    //
+    // این تفکیک تعیین می‌کند که موتور مالی عدد rate را سالانه مرکب حساب کند یا
+    // کارمزد یک‌بار روی کل اصل. تشخیص بر پایه سه نشانه است، نه فقط عدد نرخ:
+    // مسیر قرض‌الحسنه در نشانی، واژه قرض‌الحسنه در عنوان، و نرخ پایین غیرمتعارف.
+    rateKind: isFeeBased(url, title, meta, rate) ? 'fee' : 'profit',
     rateLabel: rate != null ? `سود ${rate}٪` : 'نامشخص',
+    regulatory: false,
     benefit: benefitFromRate(rate, meta.category),
     minAmount,
     maxAmount,
-    amountLabel: spec['سقف وام__value'] || 'نامشخص',
+    amountLabel: tidyLabel(specSel(spec, 'سقف وام')) || 'نامشخص',
     termMonths,
-    termLabel: spec['حداکثر زمان بازپرداخت__value'] || 'نامشخص',
+    termLabel: tidyLabel(specSel(spec, 'حداکثر زمان بازپرداخت')) || 'نامشخص',
+    ceilingContingent,
     speed: 60,
     digital: /آنلاین|اپلیکیشن|غیرحضوری/.test(descParts.join(' ')) ? 85 : 60,
     friction: hasGuarantor ? 50 : needsDeposit ? 60 : 72,
-    collateral: guarantee || spec['نوع ضمانت__detail'] || 'نامشخص',
+    collateral: guarantee || specSel(spec, 'نوع ضمانت', 'detail') || 'نامشخص',
     collateralKind: hasGuarantor ? 'guarantor' : needsDeposit ? 'deposit-block' : 'credit-score',
     audience: 'متقاضیان تسهیلات بانکی',
     desc: (descParts.join(' ') || title).slice(0, 700),
     tags: [meta.label, bank.replace(/^بانک\s*/, '')].filter(Boolean),
     requirements: [
       guarantee && `ضمانت: ${guarantee}`,
-      needsDeposit && `نیاز به سپرده: ${spec['حداقل مبلغ سپرده__value'] || 'دارد'}`,
-      spec['هزینه‌های جانبی__value'] && `هزینه جانبی: ${spec['هزینه‌های جانبی__value']}`,
+      needsDeposit && `نیاز به سپرده: ${specSel(spec, 'حداقل مبلغ سپرده') || 'دارد'}`,
+      specSel(spec, 'هزینه‌های جانبی') && `هزینه جانبی: ${specSel(spec, 'هزینه‌های جانبی')}`,
       installment && `قسط تقریبی: ${installment.toLocaleString('en-US')} تومان`,
     ].filter(Boolean),
     confidence: 'medium',
@@ -211,10 +302,10 @@ export function mapToProduct(url, html) {
       checked: new Date().toISOString().slice(0, 10),
     },
     extra: {
-      loanType: spec['نوع وام__value'] || meta.label,
+      loanType: specSel(spec, 'نوع وام') || meta.label,
       installment,
-      totalWithInterest: parseTomanAmount(spec['مجموع وام و سود__value'] || ''),
-      totalInterest: parseTomanAmount(spec['مجموع سود وام__value'] || ''),
+      totalWithInterest: parseTomanAmount(specSel(spec, 'مجموع وام و سود')),
+      totalInterest: parseTomanAmount(specSel(spec, 'مجموع سود وام')),
     },
   };
 }

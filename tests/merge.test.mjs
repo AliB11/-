@@ -1,7 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mergeProducts, sortDeep } from '../tools/collect.mjs';
-import { mapToProduct, extractSpecTable, parseTermMonths, categoryFromUrl, benefitFromRate } from '../tools/sources/rade.mjs';
+import {
+  mapToProduct, extractSpecTable, specSel, tidyLabel,
+  parseTermMonths, categoryFromUrl, benefitFromRate, isFeeBased,
+} from '../tools/sources/rade.mjs';
 
 test('رکورد جدید افزوده می‌شود', () => {
   const existing = [{ id: 'a', bank: 'بانک الف', product: 'محصول ۱', category: 'loans' }];
@@ -135,4 +138,131 @@ test('امتیاز مزیت مالی با نرخ همسو است', () => {
   const depHigh = benefitFromRate(23, 'deposits');
   const depLow = benefitFromRate(5, 'deposits');
   assert.ok(depHigh > depLow, 'نرخ بیشتر برای سپرده مزیت بیشتری دارد');
+});
+
+/* ---------- ناوابستگی به نیم‌فاصله ----------
+ *
+ * صفحه‌های رده در جای نیم‌فاصله (U+200C) ناسازگارند. اگر برچسب‌ها عیناً
+ * جست‌وجو شوند، داده بی‌سروصدا از دست می‌رود و رکورد با مقدار خالی ذخیره
+ * می‌شود — بدترین نوع خرابی، چون خطا نمی‌دهد.
+ */
+
+test('تاریخ به‌روزرسانی با نیم‌فاصله هم خوانده می‌شود', () => {
+  const table = `<table>
+      <tr><td>نام وام</td><td>وام آزمون</td></tr>
+      <tr><td>بانک</td><td>بانک رفاه کارگران</td></tr>
+    </table>`;
+  const withZwnj = `${table}<div>آخرین به‌روز رسانی:24 شهریور 1405|انتشار: 24 شهریور 1405</div>`;
+  const withoutZwnj = `${table}<div>آخرین به روز رسانی: 15 شهریور 1405</div>`;
+
+  const a = mapToProduct('https://www.rade.ir/loan-cash-loan/1-وام/', withZwnj);
+  const b = mapToProduct('https://www.rade.ir/loan-cash-loan/2-وام/', withoutZwnj);
+
+  assert.equal(a.lastUpdated, '2026-09-15', '۲۴ شهریور ۱۴۰۵ → ۲۰۲۶-۰۹-۱۵');
+  assert.equal(b.lastUpdated, '2026-09-06', '۱۵ شهریور ۱۴۰۵ → ۲۰۲۶-۰۹-۰۶');
+});
+
+test('برچسب جدول با نیم‌فاصله یا فاصله یکسان خوانده می‌شود', () => {
+  const html = `
+    <table>
+      <tr><td>نام وام</td><td>وام آزمون</td></tr>
+      <tr><td>بانک</td><td>بانک گردشگری</td></tr>
+      <tr><td>هزینه های جانبی</td><td>کارمزد متداول</td></tr>
+      <tr><td>ثبت نام آنلاین</td><td>بله</td></tr>
+    </table>`;
+  const spec = extractSpecTable(html);
+
+  // جست‌وجو با نیم‌فاصله، در حالی که صفحه فاصله ساده دارد
+  assert.equal(specSel(spec, 'هزینه‌های جانبی'), 'کارمزد متداول');
+  assert.equal(specSel(spec, 'ثبت‌نام آنلاین'), 'بله');
+});
+
+test('برچسب ناشناخته مقدار خالی می‌دهد، نه خطا', () => {
+  const spec = extractSpecTable('<table><tr><td>نام وام</td><td>وام</td></tr></table>');
+  assert.equal(specSel(spec, 'برچسب ناموجود'), '');
+  assert.equal(specSel(spec, 'برچسب ناموجود', 'detail'), '');
+});
+
+test('فاصله عدد و یکا در برچسب نمایشی مرتب می‌شود', () => {
+  assert.equal(tidyLabel('100میلیون تومان'), '100 میلیون تومان');
+  assert.equal(tidyLabel('12ماه'), '12 ماه');
+  // normalizeText ارقام فارسی را برای تجزیه به ASCII تبدیل می‌کند و لایه نمایش
+  // با fa() دوباره آن‌ها را فارسی می‌کند.
+  assert.equal(tidyLabel('۲۰۰میلیارد'), '200 میلیارد');
+  assert.equal(tidyLabel('  ', ), '');
+});
+
+test('سقف وابسته به رتبه اعتباری به‌عنوان سقف مشروط علامت می‌خورد', () => {
+  const page = (ceilingDetail) => `
+    <table>
+      <tr><td>نام وام</td><td>وام آزمون</td></tr>
+      <tr><td>بانک</td><td>بانک گردشگری</td></tr>
+      <tr><td>سقف وام</td><td>100میلیون تومان<br>${ceilingDetail}</td></tr>
+    </table>`;
+
+  const contingent = mapToProduct(
+    'https://www.rade.ir/loan-goods-loan/1-وام/',
+    page('سقف مبلغ وام بر اساس رتبه اعتباری متقاضی تعیین می‌گردد.'),
+  );
+  const fixed = mapToProduct(
+    'https://www.rade.ir/loan-goods-loan/2-وام/',
+    page('سقف ثابت برای همه متقاضیان واجد شرایط.'),
+  );
+
+  assert.equal(contingent.ceilingContingent, true, 'سقف وابسته به رتبه → مشروط');
+  assert.equal(fixed.ceilingContingent, false, 'سقف ثابت → قطعی');
+});
+
+test('توضیح محصول همه پاراگراف‌های صفحه را نگه می‌دارد', () => {
+  const html = `
+    <table>
+      <tr><td>نام وام</td><td>وام آزمون</td></tr>
+      <tr><td>بانک</td><td>بانک رفاه کارگران</td></tr>
+      <tr><td>توضیحات</td><td>پاراگراف اول.<br>پاراگراف دوم.<br>پاراگراف سوم.</td></tr>
+    </table>`;
+  const p = mapToProduct('https://www.rade.ir/loan-cash-loan/9-وام/', html);
+
+  assert.match(p.desc, /پاراگراف اول/, 'پاراگراف اول حفظ شود');
+  assert.match(p.desc, /پاراگراف دوم/, 'پاراگراف دوم حفظ شود');
+  assert.match(p.desc, /پاراگراف سوم/, 'پاراگراف سوم حفظ شود');
+});
+
+test('کارمزد یک‌بار در محصولات وام به‌درستی تشخیص داده می‌شود', () => {
+  const qarz = mapToProduct('https://www.rade.ir/loan-interest-free-loan/5-وام/', `
+    <table>
+      <tr><td>نام وام</td><td>وام قرض‌الحسنه آزمون</td></tr>
+      <tr><td>بانک</td><td>بانک قرض‌الحسنه رسالت</td></tr>
+      <tr><td>نرخ سود وام</td><td>4 ٪</td></tr>
+      <tr><td>سقف وام</td><td>200 میلیون تومان</td></tr>
+      <tr><td>حداکثر زمان بازپرداخت</td><td>60 ماه</td></tr>
+    </table>`);
+  const bank = mapToProduct('https://www.rade.ir/loan-cash-loan/6-وام/', `
+    <table>
+      <tr><td>نام وام</td><td>تسهیلات مرابحه آزمون</td></tr>
+      <tr><td>بانک</td><td>بانک رفاه کارگران</td></tr>
+      <tr><td>نرخ سود وام</td><td>23 ٪</td></tr>
+      <tr><td>سقف وام</td><td>200 میلیون تومان</td></tr>
+      <tr><td>حداکثر زمان بازپرداخت</td><td>60 ماه</td></tr>
+    </table>`);
+
+  assert.equal(qarz.rateKind, 'fee', 'نرخ ۴٪ در وام قرض‌الحسنه کارمزد یک‌بار است');
+  assert.equal(bank.rateKind, 'profit', 'نرخ ۲۳٪ سود سالانه است');
+});
+
+test('تشخیص کارمزد یک‌بار در برابر سود سالانه', () => {
+  const loans = { category: 'loans' };
+  const deposits = { category: 'deposits' };
+
+  // کارمزد یک‌بار
+  assert.equal(isFeeBased('https://www.rade.ir/loan-interest-free-loan/1-وام-قرض‌الحسنه/', 'وام قرض‌الحسنه اصناف', loans, 4), true);
+  assert.equal(isFeeBased('https://www.rade.ir/loan-cash-loan/2-وام-ازدواج/', 'وام ازدواج', loans, 4), true);
+  assert.equal(isFeeBased('https://www.rade.ir/loan-cash-loan/3-وام-حمایتی/', 'وام حمایتی بازنشستگان', loans, 4), true);
+
+  // سود سالانه
+  assert.equal(isFeeBased('https://www.rade.ir/loan-cash-loan/4-مرابحه/', 'تسهیلات مرابحه خرد', loans, 23), false);
+  assert.equal(isFeeBased('https://www.rade.ir/loan-instant-loan/5-به‌جا/', 'وام به‌جا', loans, 20), false);
+  assert.equal(isFeeBased('https://www.rade.ir/loan-goods-loan/6-کارت/', 'کارت اعتباری کالا', loans, 24), false);
+
+  // سپرده‌ها هرگز کارمزد یک‌بار نیستند
+  assert.equal(isFeeBased('https://www.rade.ir/bank-account/7-سپرده/', 'سپرده بلندمدت', deposits, 4), false);
 });

@@ -373,11 +373,11 @@ export function cardHTML(p) {
       </div>
       <div class="metric">
         <span class="k">سقف / دامنه</span>
-        <span class="v">${esc(p.amountLabel || faToman(p.maxAmount) || 'نامشخص')}</span>
+        <span class="v">${fa(esc(p.amountLabel || faToman(p.maxAmount) || 'نامشخص'))}</span>
       </div>
       <div class="metric">
         <span class="k">مدت</span>
-        <span class="v">${esc(p.termLabel || (p.termMonths ? `${fa(p.termMonths)} ماه` : 'نامشخص'))}</span>
+        <span class="v">${fa(esc(p.termLabel || (p.termMonths ? `${fa(p.termMonths)} ماه` : 'نامشخص')))}</span>
       </div>
     </div>
 
@@ -508,7 +508,7 @@ export function compareHTML() {
     { key: 'term', label: 'مدت بازپرداخت', get: (p) => p.termMonths, lowerIsBetter: false, fmt: (v) => (v ? `${fa(v)} ماه` : '—') },
     { key: 'installment', label: 'قسط تقریبی (در سقف مجاز)', contingent: true, get: (p) => (isFinanced(p) ? scheduleFor(p, p.maxAmount, p.termMonths).installment : null), lowerIsBetter: true, fmt: (v) => faToman(v) },
     { key: 'interest', label: 'کل هزینه مالی (سود یا کارمزد)', contingent: true, get: (p) => (isFinanced(p) ? scheduleFor(p, p.maxAmount, p.termMonths).totalInterest : null), lowerIsBetter: true, fmt: (v) => faToman(v) },
-    { key: 'collateral', label: 'وثیقه / ضمانت', get: (p) => null, lowerIsBetter: false, fmt: (_, p) => esc(p.collateral) },
+    { key: 'collateral', label: 'وثیقه / ضمانت', get: (p) => null, lowerIsBetter: false, fmt: (_, p) => fa(esc(p.collateral)) },
     { key: 'digital', label: 'امتیاز دیجیتال', get: (p) => p.digital, lowerIsBetter: false, fmt: (v) => fa(Math.round(v)) },
     { key: 'friction', label: 'کمبود اصطکاک', get: (p) => p.friction, lowerIsBetter: false, fmt: (v) => fa(Math.round(v)) },
     { key: 'fresh', label: 'آخرین کنترل', get: (p) => null, lowerIsBetter: false, fmt: (_, p) => (p.lastUpdated ? esc(faDate(p.lastUpdated)) : '—') },
@@ -763,7 +763,7 @@ export function detailHTML(p) {
       </div>
       <h2>${esc(p.product)}</h2>
       <div style="font-size:var(--fs-2xs);color:var(--text-3);margin-block-start:3px">
-        ${esc(p.bank)}${p.audience ? ` · ${esc(p.audience)}` : ''}
+        ${fa(esc(p.bank))}${p.audience ? ` · ${fa(esc(p.audience))}` : ''}
       </div>
     </div>
     <button class="btn btn--icon btn--ghost" type="button" data-action="close-drawer" aria-label="بستن">✕</button>
@@ -785,10 +785,10 @@ export function detailHTML(p) {
 
     <div class="spec-grid">
       ${spec('نرخ / کارمزد', p.rateKind === 'none' ? 'غیرنرخ‌دار' : faPercent(p.rate))}
-      ${spec('سقف مبلغ', esc(p.amountLabel || faToman(p.maxAmount)))}
+      ${spec('سقف مبلغ', fa(esc(p.amountLabel || faToman(p.maxAmount))))}
       ${spec('حداقل مبلغ', esc(faToman(p.minAmount)))}
-      ${spec('مدت', esc(p.termLabel || (p.termMonths ? `${fa(p.termMonths)} ماه` : 'نامشخص')))}
-      ${spec('وثیقه / ضمانت', esc(p.collateral))}
+      ${spec('مدت', fa(esc(p.termLabel || (p.termMonths ? `${fa(p.termMonths)} ماه` : 'نامشخص'))))}
+      ${spec('وثیقه / ضمانت', fa(esc(p.collateral)))}
       ${spec('نوع وثیقه', esc(collateralLabel[p.collateralKind] ?? 'نامشخص'))}
       ${spec('سطح اطمینان', esc((confChip[p.confidence] ?? confChip.medium)[1]))}
       ${spec(realLabel(p), result.realRate != null ? faSignedPercent(result.realRate) : '—')}
