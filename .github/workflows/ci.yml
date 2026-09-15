@@ -1,0 +1,53 @@
+name: یکپارچه‌سازی پیوسته
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: اعتبارسنجی داده و آزمون‌ها
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: دریافت مخزن
+        uses: actions/checkout@v7
+
+      - name: راه‌اندازی Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: اعتبارسنجی طرح‌واره داده
+        run: node scripts/validate-data.mjs
+
+      - name: آزمون‌های واحد
+        run: node --test "tests/*.test.mjs"
+
+      - name: بررسی هم‌خوانی بسته داده با JSON
+        run: |
+          cp data/bundle.js /tmp/bundle-before.js
+          node tools/build-bundle.mjs
+          if ! diff -q /tmp/bundle-before.js data/bundle.js > /dev/null; then
+            echo "::error::فایل data/bundle.js با data/products.json هم‌خوان نیست."
+            echo "دستور «node tools/build-bundle.mjs» را اجرا و نتیجه را ثبت کنید."
+            exit 1
+          fi
+          echo "بسته داده با JSON هم‌خوان است."
+
+      - name: بررسی صحت نحو فایل‌های جاوااسکریپت
+        run: |
+          for f in assets/js/*.js tools/*.mjs tools/lib/*.mjs tools/sources/*.mjs scripts/*.mjs; do
+            node --check "$f" || { echo "::error::خطای نحو در $f"; exit 1; }
+          done
+          echo "همه فایل‌های جاوااسکریپت از نظر نحو معتبرند."

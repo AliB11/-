@@ -1,0 +1,162 @@
+{
+  "autoDiscovered": 120,
+  "counts": {
+    "credit": 52,
+    "deposits": 17,
+    "loans": 100,
+    "loyalty": 10,
+    "total": 179
+  },
+  "lastRun": "2026-09-15T17:41:02.079Z",
+  "lastRunDurationMs": 96494,
+  "lastRunMode": "full",
+  "sources": [
+    {
+      "attempted": 120,
+      "discovered": 550,
+      "failures": 0,
+      "ms": 3792,
+      "name": "rade.ir",
+      "ok": true,
+      "parsed": 120
+    },
+    {
+      "detail": [
+        {
+          "id": "cbi-rates",
+          "ok": true,
+          "rates": [],
+          "url": "https://www.cbi.ir/simplelist/2088.aspx"
+        },
+        {
+          "id": "cbi-circulars",
+          "ok": true,
+          "rates": [],
+          "url": "https://www.cbi.ir/simplelist/1466.aspx"
+        },
+        {
+          "error": "دریافت https://bmi.ir/fa/deposit ناموفق بود پس از 2 تلاش: HTTP 403 Forbidden",
+          "id": "melli-deposit",
+          "ok": false,
+          "url": "https://bmi.ir/fa/deposit"
+        },
+        {
+          "error": "دریافت https://bankmellat.ir/deposits ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "mellat-deposit",
+          "ok": false,
+          "url": "https://bankmellat.ir/deposits"
+        },
+        {
+          "error": "دریافت https://tejaratbank.ir/دپارتمان-حساب-سپرده ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "tejarat-deposit",
+          "ok": false,
+          "url": "https://tejaratbank.ir/دپارتمان-حساب-سپرده"
+        },
+        {
+          "error": "دریافت https://www.bsi.ir/Services/Deposits ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "saderat-deposit",
+          "ok": false,
+          "url": "https://www.bsi.ir/Services/Deposits"
+        },
+        {
+          "error": "دریافت https://banksepah.ir/سپرده ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "sepah-deposit",
+          "ok": false,
+          "url": "https://banksepah.ir/سپرده"
+        },
+        {
+          "error": "دریافت https://www.enbank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "eghtesad-novin",
+          "ok": false,
+          "url": "https://www.enbank.ir/"
+        },
+        {
+          "error": "دریافت https://parsian-bank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "parsian",
+          "ok": false,
+          "url": "https://parsian-bank.ir/"
+        },
+        {
+          "error": "دریافت https://www.bpi.ir/ ناموفق بود پس از 2 تلاش: HTTP 403 Forbidden",
+          "id": "pasargad",
+          "ok": false,
+          "url": "https://www.bpi.ir/"
+        },
+        {
+          "error": "دریافت https://www.sb24.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "saman",
+          "ok": false,
+          "url": "https://www.sb24.ir/"
+        },
+        {
+          "error": "دریافت https://www.refah-bank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "refah",
+          "ok": false,
+          "url": "https://www.refah-bank.ir/"
+        },
+        {
+          "error": "دریافت https://www.bank-maskan.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "maskan",
+          "ok": false,
+          "url": "https://www.bank-maskan.ir/"
+        },
+        {
+          "error": "دریافت https://www.karafarinbank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "karafarin",
+          "ok": false,
+          "url": "https://www.karafarinbank.ir/"
+        },
+        {
+          "error": "دریافت https://www.shahr-bank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "shahr",
+          "ok": false,
+          "url": "https://www.shahr-bank.ir/"
+        },
+        {
+          "error": "دریافت https://www.sinabank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "sina",
+          "ok": false,
+          "url": "https://www.sinabank.ir/"
+        },
+        {
+          "error": "دریافت https://www.qmb.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "mehr-iran",
+          "ok": false,
+          "url": "https://www.qmb.ir/"
+        },
+        {
+          "error": "دریافت https://www.rqbank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "resalat",
+          "ok": false,
+          "url": "https://www.rqbank.ir/"
+        },
+        {
+          "error": "دریافت https://blubank.com/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "blubank",
+          "ok": false,
+          "url": "https://blubank.com/"
+        },
+        {
+          "error": "دریافت https://vipad.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "id": "vipad",
+          "ok": false,
+          "url": "https://vipad.ir/"
+        }
+      ],
+      "ms": 85848,
+      "name": "bank-sites",
+      "ok": true,
+      "reachable": 2,
+      "targets": 20
+    },
+    {
+      "ms": 6825,
+      "name": "macro-indicators",
+      "ok": true,
+      "sourcesOk": 2,
+      "touched": []
+    }
+  ],
+  "stale": 0,
+  "version": 2
+}
