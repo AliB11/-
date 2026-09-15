@@ -244,3 +244,50 @@ test('نشانی‌های خطرناک در href مسدود می‌شوند', as
   assert.equal(safeUrl('http://example.com/a?b=1&c=2'), 'http://example.com/a?b=1&amp;c=2');
   assert.equal(safeUrl('mailto:a@b.ir'), 'mailto:a@b.ir');
 });
+
+/* ---------- تفکیک «بازبینی» از «به‌روزرسانی منبع» ----------
+ *
+ * رکوردی که امروز واکشی شده، بازبینی‌شده است حتی اگر صفحه منبع ماه‌ها
+ * دست‌نخورده مانده باشد. اگر این دو تاریخ یکی گرفته شوند، صدها رکورد تازه
+ * واکشی‌شده کهنه به نظر می‌رسند و امتیاز تازگی و سلامت داده بی‌معنا می‌شود.
+ */
+
+test('تازگی بر پایه جدیدترین تاریخ بازبینی و منبع سنجیده می‌شود', async () => {
+  const { freshnessScore } = await import('../assets/js/score.js');
+
+  const today = new Date().toISOString().slice(0, 10);
+  const old = '2025-01-01';
+
+  // منبع کهنه ولی امروز بازبینی شده → تازه
+  const reviewed = freshnessScore({ lastUpdated: old, lastSeen: today });
+  assert.equal(reviewed, 100, 'رکورد امروز بازبینی‌شده باید تازه باشد');
+
+  // منبع تازه ولی فقط یک تاریخ → همان تاریخ ملاک است
+  const sourceOnly = freshnessScore({ lastUpdated: today });
+  assert.equal(sourceOnly, 100);
+
+  // هر دو کهنه → کهنه
+  const bothOld = freshnessScore({ lastUpdated: old, lastSeen: old });
+  assert.ok(bothOld < 20, `رکورد کهنه باید امتیاز کمی بگیرد، دریافت شد ${bothOld}`);
+
+  // سازگاری با فراخوانی رشته‌ای (پیش از این، ورودی یک تاریخ بود)
+  assert.equal(freshnessScore(today), 100);
+  assert.equal(freshnessScore(null), 20);
+});
+
+test('خلاصه، بازبینی و تازگی منبع را جدا گزارش می‌کند', async () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const old = '2025-01-01';
+
+  store.store.products = [
+    { ...store.store.products[0], id: 't1', lastUpdated: old, lastSeen: today },
+    { ...store.store.products[0], id: 't2', lastUpdated: today, lastSeen: today },
+    { ...store.store.products[0], id: 't3', lastUpdated: old, lastSeen: old },
+  ];
+  store.recalculate();
+
+  const s = store.summary();
+  assert.equal(s.verified30, 2, 'دو رکورد در ۳۰ روز اخیر بازبینی شده‌اند');
+  assert.equal(s.sourceFresh30, 1, 'فقط یک منبع در ۳۰ روز اخیر به‌روز شده است');
+  assert.ok(s.health > 0 && s.health <= 100, 'امتیاز سلامت در بازه معتبر باشد');
+});

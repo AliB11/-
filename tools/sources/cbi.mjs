@@ -10,6 +10,12 @@ import { get, runSource } from '../lib/http.mjs';
 import { normalizeText, stripTags, toNumber } from '../lib/parse.mjs';
 import { parseJalaliDate, todayJalali, formatJalali } from '../lib/jalali.mjs';
 
+/** تبدیل ارقام لاتین به فارسی برای نمایش در رابط */
+function toPersianDigits(value) {
+  return String(value ?? '').replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+}
+
+
 /** منابع خبری/رسمی که عدد تورم و نرخ‌های کلان را منتشر می‌کنند */
 const MACRO_SOURCES = [
   {
@@ -169,7 +175,17 @@ export async function collect(base, opts = {}) {
 
   const j = todayJalali();
   merged.generatedAt = new Date().toISOString();
-  merged.period = formatJalali(j.jy, j.jm, j.jd);
+
+  // «period» برچسب بازه گزارش‌دهی است و در سرصفحه سامانه نمایش داده می‌شود.
+  // نوشتن تاریخ خام در آن، برچسب معنادار قبلی (مثلاً «مرداد ۱۴۰۵») را از بین
+  // می‌برد و با لحن فارسی رابط هم‌خوان نیست؛ بنابراین فقط اگر مقدار معناداری
+  // وجود نداشته باشد، دوره از تاریخ روز ساخته می‌شود.
+  const inflationPeriod = merged.indicators?.inflationAnnual?.period;
+  if (inflationPeriod) {
+    merged.period = toPersianDigits(inflationPeriod);
+  } else if (!merged.period || /^[\d۰-۹]/.test(String(merged.period).trim())) {
+    merged.period = toPersianDigits(`شهریور ${j.jy}`);
+  }
 
   return {
     source: 'macro-indicators',

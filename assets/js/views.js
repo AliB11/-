@@ -6,7 +6,7 @@
  */
 
 import {
-  esc, fa, faNum, faToman, faPercent, faSignedPercent, faDate, faAgo, freshness, safeUrl,
+  esc, fa, faNum, faToman, faPercent, faSignedPercent, faDate, faAgo, freshness, safeUrl, daysSince,
 } from './util.js';
 import { CATEGORY_META, store, scoreOf, resultOf, summary, availableBanks, availableBanksIn, PRESETS } from './store.js';
 import { scoreTone, explainScore, WEIGHT_META, WEIGHT_KEYS } from './score.js';
@@ -94,7 +94,12 @@ export function heroHTML() {
 
       <div class="health-list">
         <div class="health-row"><span class="lbl">محصول فعال</span><span class="val num">${fa(s.total)}</span></div>
-        <div class="health-row"><span class="lbl">کنترل‌شده در ۳۰ روز</span><span class="val num">${fa(s.fresh30)}<small>از ${fa(s.total)}</small></span></div>
+        <div class="health-row" title="رکوردهایی که خط لوله در ۳۰ روز گذشته بازبینی کرده است">
+          <span class="lbl">بازبینی‌شده در ۳۰ روز</span><span class="val num">${fa(s.verified30)}<small>از ${fa(s.total)}</small></span>
+        </div>
+        <div class="health-row" title="رکوردهایی که خود منبع در ۳۰ روز گذشته به‌روز کرده است">
+          <span class="lbl">منبع به‌روز در ۳۰ روز</span><span class="val num">${fa(s.sourceFresh30)}<small>از ${fa(s.total)}</small></span>
+        </div>
         <div class="health-row"><span class="lbl">منبع با اطمینان بالا</span><span class="val num">${fa(s.confidence.high)}<small>رکورد</small></span></div>
         <div class="health-row"><span class="lbl">گردآوری خودکار</span><span class="val num">${fa(s.auto)}<small>رکورد</small></span></div>
         <div class="health-row"><span class="lbl">میانگین جذابیت</span><span class="val num">${fa(s.avgScore)}<small>از ۱۰۰</small></span></div>
@@ -392,8 +397,14 @@ export function cardHTML(p) {
     <footer class="card-foot">
       <span class="freshness ${fresh}">
         <span aria-hidden="true">●</span>
-        ${p.lastUpdated ? `کنترل ${esc(faAgo(p.lastUpdated))}` : 'تاریخ کنترل نامشخص'}
-        · تاریخ ${esc(faDate(p.lastUpdated))}
+        ${(() => {
+          // دو تاریخ متفاوت است: زمان بازبینی توسط خط لوله، و زمان
+          // به‌روزرسانی خود منبع. نمایش هر دو، تصویر صادقانه‌تری می‌دهد.
+          const checked = p.lastSeen || p.lastUpdated;
+          const srcDate = p.lastUpdated;
+          const srcOld = srcDate && daysSince(srcDate) > 90;
+          return `کنترل ${esc(faAgo(checked))}${srcOld ? ` · منبع: ${esc(faDate(srcDate))}` : ''}`;
+        })()}
       </span>
       <span class="card-actions">
         <button class="btn btn--sm ${compared ? 'btn--primary' : ''}" type="button"
@@ -511,7 +522,8 @@ export function compareHTML() {
     { key: 'collateral', label: 'وثیقه / ضمانت', get: (p) => null, lowerIsBetter: false, fmt: (_, p) => fa(esc(p.collateral)) },
     { key: 'digital', label: 'امتیاز دیجیتال', get: (p) => p.digital, lowerIsBetter: false, fmt: (v) => fa(Math.round(v)) },
     { key: 'friction', label: 'کمبود اصطکاک', get: (p) => p.friction, lowerIsBetter: false, fmt: (v) => fa(Math.round(v)) },
-    { key: 'fresh', label: 'آخرین کنترل', get: (p) => null, lowerIsBetter: false, fmt: (_, p) => (p.lastUpdated ? esc(faDate(p.lastUpdated)) : '—') },
+    { key: 'fresh', label: 'آخرین کنترل خط لوله', get: (p) => null, lowerIsBetter: false, fmt: (_, p) => (p.lastSeen || p.lastUpdated ? esc(faDate(p.lastSeen || p.lastUpdated)) : '—') },
+    { key: 'srcFresh', label: 'به‌روزرسانی منبع', get: (p) => null, lowerIsBetter: false, fmt: (_, p) => (p.lastUpdated ? esc(faDate(p.lastUpdated)) : '—') },
     { key: 'conf', label: 'اطمینان منبع', get: (p) => null, lowerIsBetter: false, fmt: (_, p) => esc((confChip[p.confidence] ?? confChip.medium)[1]) },
   ];
 
@@ -759,6 +771,7 @@ export function detailHTML(p) {
       <div class="row" style="gap:var(--sp-2);margin-block-end:var(--sp-2)">
         <span class="chip chip--cat-${esc(p.category)}">${esc(meta.title)}</span>
         ${p.regulatory ? '<span class="chip chip--info">مصوب نهاد ناظر</span>' : ''}
+        ${p.multiPlan ? '<span class="chip chip--warn" title="این صفحه بسته چند طرح مستقل است؛ سقف و مدت نوشته‌شده به یک محصول واحد تعلق ندارد">بسته چندطرحی</span>' : ''}
         ${p.autoDiscovered ? '<span class="chip">گردآوری خودکار</span>' : '<span class="chip chip--good">دستی‌گردآوری</span>'}
       </div>
       <h2>${esc(p.product)}</h2>
@@ -786,6 +799,7 @@ export function detailHTML(p) {
     <div class="spec-grid">
       ${spec('نرخ / کارمزد', p.rateKind === 'none' ? 'غیرنرخ‌دار' : faPercent(p.rate))}
       ${spec('سقف مبلغ', fa(esc(p.amountLabel || faToman(p.maxAmount))))}
+      ${p.multiPlan ? `<div><span class="k">توجه</span><span class="v" style="font-size:var(--fs-3xs);color:var(--text-3);line-height:1.9">این صفحه یک بسته چند طرح مستقل است؛ سقف و مدت بازپرداخت بین طرح‌ها متفاوت است و ارقام منفرد در جدول مقایسه آورده نمی‌شود.</span></div>` : ''}
       ${spec('حداقل مبلغ', esc(faToman(p.minAmount)))}
       ${spec('مدت', fa(esc(p.termLabel || (p.termMonths ? `${fa(p.termMonths)} ماه` : 'نامشخص'))))}
       ${spec('وثیقه / ضمانت', fa(esc(p.collateral)))}
@@ -1027,7 +1041,8 @@ export function footerHTML() {
         <ul>
           <li>رکورد با اطمینان بالا: <b class="num">${fa(s.confidence.high)}</b></li>
           <li>گردآوری خودکار: <b class="num">${fa(s.auto)}</b></li>
-          <li>کنترل‌شده در ۳۰ روز: <b class="num">${fa(s.fresh30)}</b></li>
+          <li>بازبینی‌شده در ۳۰ روز: <b class="num">${fa(s.verified30)}</b></li>
+          <li>منبع به‌روز در ۳۰ روز: <b class="num">${fa(s.sourceFresh30)}</b></li>
           <li>نیازمند بازبینی: <b class="num">${fa(s.stale)}</b></li>
         </ul>
       </div>

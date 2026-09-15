@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mergeProducts, sortDeep } from '../tools/collect.mjs';
 import {
   mapToProduct, extractSpecTable, specSel, tidyLabel,
-  parseTermMonths, categoryFromUrl, benefitFromRate, isFeeBased,
+  parseTermMonths, categoryFromUrl, benefitFromRate, isFeeBased, parseRatioPercent,
 } from '../tools/sources/rade.mjs';
 
 test('رکورد جدید افزوده می‌شود', () => {
@@ -265,4 +265,99 @@ test('تشخیص کارمزد یک‌بار در برابر سود سالانه'
 
   // سپرده‌ها هرگز کارمزد یک‌بار نیستند
   assert.equal(isFeeBased('https://www.rade.ir/bank-account/7-سپرده/', 'سپرده بلندمدت', deposits, 4), false);
+});
+
+/* ---------- کیفیت داده در رکوردهای خودکار ---------- */
+
+test('نسبت سپرده نامعلوم، سقف را مشروط نمی‌کند', () => {
+  // «نامشخص» یعنی نسبت نامعلوم است؛ نه اینکه مخالف ۱۰۰٪ باشد. اگر این تفکیک
+  // رعایت نشود، بیشتر رکوردهای خودکار بی‌دلیل «سقف مشروط» علامت می‌خورند.
+  assert.equal(parseRatioPercent('نامشخص'), null);
+  assert.equal(parseRatioPercent('متغیر'), null);
+  assert.equal(parseRatioPercent(''), null);
+  assert.equal(parseRatioPercent('۱۰۰ ٪'), 100);
+  assert.equal(parseRatioPercent('400 ٪'), 400);
+
+  const page = (ratio) => `
+    <table>
+      <tr><td>نام وام</td><td>وام آزمون</td></tr>
+      <tr><td>بانک</td><td>بانک ایران زمین</td></tr>
+      <tr><td>سقف وام</td><td>500 میلیون تومان</td></tr>
+      <tr><td>حداکثر زمان بازپرداخت</td><td>36 ماه</td></tr>
+      <tr><td>نسبت مبلغ وام به میزان سپرده</td><td>${ratio}</td></tr>
+    </table>`;
+
+  assert.equal(mapToProduct('https://www.rade.ir/loan-cash-loan/1-x/', page('نامشخص')).ceilingContingent, false,
+    'نسبت نامعلوم نباید سقف را مشروط کند');
+  assert.equal(mapToProduct('https://www.rade.ir/loan-cash-loan/2-x/', page('۱۰۰ ٪')).ceilingContingent, false,
+    'نسبت ۱۰۰٪ یعنی سقف به اندازه سپرده است، نه مشروط');
+  assert.equal(mapToProduct('https://www.rade.ir/loan-cash-loan/3-x/', page('400 ٪')).ceilingContingent, true,
+    'نسبت ۴۰۰٪ یعنی وابستگی به سپرده');
+});
+
+test('بسته چند‌طرحی سقف و مدت منفرد نمی‌گیرد', () => {
+  const html = `
+    <table>
+      <tr><td>نام وام</td><td>طرح تسهیلات ایرانیار</td></tr>
+      <tr><td>بانک</td><td>بانک ایران زمین</td></tr>
+      <tr><td>سقف وام</td><td>100میلیارد تومان<br>سقف تسهیلات در طرح‌های مختلف متفاوت است.</td></tr>
+      <tr><td>حداکثر زمان بازپرداخت</td><td>48ماه<br>طرح‌های مختلف بین ۱۵ روز تا ۴۸ ماه است.</td></tr>
+      <tr><td>توضیحات</td><td>طرح کار نیک<br>از ۲۰۰ میلیون تا یک میلیارد<br>طرح فراز<br>۱۰ تا ۵۰ میلیون<br>طرح کالایار<br>۵۰ تا ۵۰۰ میلیون<br>طرح فرصت<br>۲۰ تا ۳۰۰ میلیون<br>طرح کارا<br>۲۰ تا ۹۰۰ میلیون</td></tr>
+    </table>`;
+  const p = mapToProduct('https://www.rade.ir/loan-goods-loan/704680-طرح-ایران‌یار/', html);
+
+  assert.equal(p.multiPlan, true, 'بسته چند‌طرحی تشخیص داده شود');
+  assert.equal(p.maxAmount, null, 'سقف بی‌معنای بسته نباید ثبت شود');
+  assert.equal(p.termMonths, null, 'مدت بی‌معنای بسته نباید ثبت شود');
+  assert.equal(p.confidence, 'low', 'اطمینان باید پایین باشد');
+  assert.equal(p.ceilingContingent, true, 'و در مقایسه شرکت نکند');
+  assert.match(p.amountLabel, /میلیارد/, 'برچسب توصیفی سقف حفظ می‌شود');
+});
+
+test('محصول تک‌طرحی سقف و مدت خود را حفظ می‌کند', () => {
+  const html = `
+    <table>
+      <tr><td>نام وام</td><td>وام میکاکارت</td></tr>
+      <tr><td>بانک</td><td>بانک گردشگری</td></tr>
+      <tr><td>سقف وام</td><td>100میلیون تومان</td></tr>
+      <tr><td>حداکثر زمان بازپرداخت</td><td>12ماه</td></tr>
+      <tr><td>توضیحات</td><td>این کارت فقط برای پذیرندگان میکامال است.</td></tr>
+    </table>`;
+  const p = mapToProduct('https://www.rade.ir/loan-goods-loan/708732-وام-میکاکارت/', html);
+
+  assert.equal(p.multiPlan, false);
+  assert.equal(p.maxAmount, 100_000_000);
+  assert.equal(p.termMonths, 12);
+});
+
+test('رکورد خودکار با تجزیه تازه پاک می‌شود، رکورد دست‌نویس نه', () => {
+  // صفحه‌ای که بسته چند‌طرحی است، سقف منفرد ندارد. تجزیه تازه باید بتواند
+  // مقدار نادرست قدیمی را پاک کند؛ ولی برای رکورد دست‌نویس، مقدار تهی هرگز
+  // نباید مقدار انسانی را از بین ببرد.
+  const auto = {
+    id: 'rade-1', bank: 'بانک آزمون', product: 'وام آزمون',
+    category: 'loans', maxAmount: 100_000_000_000, termMonths: 48,
+    autoDiscovered: true, lastUpdated: '2026-08-01',
+  };
+  const curated = {
+    id: 'curated-1', bank: 'بانک آزمون', product: 'وام دستی',
+    category: 'loans', maxAmount: 300_000_000, termMonths: 60,
+    autoDiscovered: false, lastUpdated: '2026-08-01',
+  };
+
+  const incoming = (id) => [{
+    id, bank: 'بانک آزمون', product: id === 'rade-1' ? 'وام آزمون' : 'وام دستی',
+    category: 'loans', maxAmount: null, termMonths: null,
+    autoDiscovered: true, lastUpdated: '2026-09-15',
+  }];
+
+  const autoResult = mergeProducts([auto], incoming('rade-1'));
+  const autoAfter = autoResult.merged.find((p) => p.id === 'rade-1');
+  assert.equal(autoAfter.maxAmount, null, 'رکورد خودکار باید پاک شود');
+  assert.equal(autoAfter.termMonths, null, 'مدت هم باید پاک شود');
+
+  const curatedResult = mergeProducts([curated], incoming('curated-1'));
+  const curatedAfter = curatedResult.merged.find((p) => p.id === 'curated-1');
+  assert.equal(curatedAfter.maxAmount, 300_000_000, 'مقدار دست‌نویس باید حفظ شود');
+  assert.equal(curatedAfter.termMonths, 60, 'مدت دست‌نویس باید حفظ شود');
 });

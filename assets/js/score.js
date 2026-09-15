@@ -35,7 +35,24 @@ export const PRESETS = {
 };
 
 /** امتیاز تازگی داده (۰ تا ۱۰۰) با افت تدریجی */
-export function freshnessScore(iso) {
+/**
+ * تازگی کنترل‌شدن یک رکورد.
+ *
+ * دو تاریخ متفاوت وجود دارد و خلط کردن آن‌ها نتیجه را گمراه می‌کند:
+ *   lastUpdated — تاریخ آخرین به‌روزرسانی خودِ منبع (مثلاً صفحه بانک)
+ *   lastSeen    — تاریخی که خط لوله این رکورد را دیده و بازبینی کرده است
+ *
+ * رکوردی که امروز واکشی شده، «کنترل‌شده» است حتی اگر صفحه منبع ماه‌ها
+ * دست‌نخورده مانده باشد. اگر فقط lastUpdated را ملاک بگیریم، صدها رکورد
+ * تازه‌واکشی‌شده کهنه به نظر می‌رسند. کهنگی خود منبع در جای دیگری گزارش
+ * می‌شود (ستون «به‌روزرسانی منبع» و آمار جداگانه).
+ *
+ * @param {string|{lastUpdated?:string, lastSeen?:string}} input
+ */
+export function freshnessScore(input) {
+  const iso = typeof input === 'object' && input !== null
+    ? mostRecent(input.lastUpdated, input.lastSeen)
+    : input;
   const d = daysSince(iso);
   if (!Number.isFinite(d)) return 20;
   if (d <= 7) return 100;
@@ -43,6 +60,13 @@ export function freshnessScore(iso) {
   if (d <= 90) return 72 - (d - 30) * 0.5;
   if (d <= 180) return 42 - (d - 90) * 0.2;
   return Math.max(5, 20 - (d - 180) * 0.05);
+}
+
+/** جدیدترین تاریخ از میان دو مقدار (به شکل ISO) */
+export function mostRecent(a, b) {
+  if (!a) return b ?? null;
+  if (!b) return a;
+  return String(a) >= String(b) ? a : b;
 }
 
 /**
@@ -66,7 +90,8 @@ function reliabilityFactor(product) {
  * @returns {{score:number, parts:Record<string,number>, realRate:number|null, adjustment:number}}
  */
 export function scoreProduct(product, weights, ctx = {}) {
-  const fresh = freshnessScore(product.lastUpdated);
+  // کل رکورد داده می‌شود تا هم تاریخ منبع و هم تاریخ کنترل دیده شود
+  const fresh = freshnessScore(product);
 
   const parts = {
     benefit: clamp01(product.benefit ?? 55),

@@ -8,7 +8,7 @@
  */
 
 import { storage, daysSince, clamp } from './util.js';
-import { DEFAULT_WEIGHTS, scoreProduct, PRESETS } from './score.js';
+import { DEFAULT_WEIGHTS, scoreProduct, PRESETS, mostRecent } from './score.js';
 
 const CATEGORY_META = {
   deposits: { title: 'منابعی و سپرده', short: 'سپرده', icon: '💰', color: '#2fe0a8', desc: 'سپرده‌ها، گواهی‌ها و طرح‌های سرمایه‌گذاری' },
@@ -79,9 +79,11 @@ function normalizeProduct(raw, index) {
     confidence: raw.confidence || 'medium',
     regulatory: raw.regulatory === true,
     ceilingContingent: raw.ceilingContingent === true,
+    multiPlan: raw.multiPlan === true,
     autoDiscovered: raw.autoDiscovered === true,
     stale: raw.stale === true,
     lastUpdated: raw.lastUpdated || null,
+    lastSeen: raw.lastSeen || null,
     source: raw.source || null,
     extra: raw.extra || {},
   };
@@ -272,7 +274,17 @@ export function summary() {
   }, {});
 
   const scores = products.map((p) => scoreOf(p.id));
-  const fresh30 = products.filter((p) => daysSince(p.lastUpdated) <= 30).length;
+
+  // دو سنجه مستقل:
+  //   verified30 — رکوردهایی که خط لوله در ۳۰ روز گذشته بازبینی کرده است
+  //   sourceFresh30 — رکوردهایی که خود منبع در ۳۰ روز گذشته به‌روز شده است
+  // تفکیک این دو مهم است: داده‌ای می‌تواند «تازه کنترل‌شده» ولی «منبع کهنه»
+  // باشد، و برعکس. نمایش یک عدد به‌جای هر دو، تصویر نادرست می‌دهد.
+  const verified30 = products.filter(
+    (p) => daysSince(mostRecent(p.lastUpdated, p.lastSeen)) <= 30,
+  ).length;
+  const sourceFresh30 = products.filter((p) => daysSince(p.lastUpdated) <= 30).length;
+  const fresh30 = verified30;
   const stale = products.filter((p) => p.stale).length;
   const auto = products.filter((p) => p.autoDiscovered).length;
   const missingDate = products.filter((p) => !p.lastUpdated).length;
@@ -282,6 +294,8 @@ export function summary() {
     banks: new Set(products.map((p) => p.bank)).size,
     byCategory,
     fresh30,
+    verified30,
+    sourceFresh30,
     stale,
     auto,
     missingDate,
@@ -294,10 +308,18 @@ export function summary() {
       low: products.filter((p) => p.confidence === 'low').length,
     },
     /** امتیاز سلامت کل داده: ترکیب تازگی، اطمینان و پوشش */
+    /**
+     * امتیاز سلامت مجموعه داده.
+     *
+     * پوشش بازبینی مهم‌ترین عامل است (۴۵) چون نشان می‌دهد خط لوله کار می‌کند.
+     * تازگی خودِ منبع وزن سبک‌تری دارد (۲۰) چون به رفتار بانک‌ها بستگی دارد
+     * و در اختیار این سامانه نیست. اطمینان منبع ۲۰ و نبود رکورد منقضی ۱۵.
+     */
     health: Math.round(
       clamp(
-        (fresh30 / Math.max(1, products.length)) * 55 +
-          (products.filter((p) => p.confidence === 'high').length / Math.max(1, products.length)) * 30 +
+        (verified30 / Math.max(1, products.length)) * 45 +
+          (sourceFresh30 / Math.max(1, products.length)) * 20 +
+          (products.filter((p) => p.confidence === 'high').length / Math.max(1, products.length)) * 20 +
           (1 - stale / Math.max(1, products.length)) * 15,
         0,
         100,

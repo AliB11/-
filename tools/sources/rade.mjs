@@ -136,6 +136,23 @@ export function tidyLabel(text) {
     .trim();
 }
 
+/**
+ * تبدیل «نسبت مبلغ وام به میزان سپرده» به عدد درصدی.
+ * صفحه‌ها هم «۱۰۰ ٪» و هم «نامشخص» و هم رشته خالی می‌نویسند؛ در حالت نامعلوم
+ * باید null برگردد تا با «نسبت نامعلوم» مثل «نسبت مخالف ۱۰۰٪» رفتار نشود.
+ *
+ * @param {string} text
+ * @returns {number|null}
+ */
+export function parseRatioPercent(text) {
+  const t = normalizeText(text);
+  if (!t || /نامشخص|متغیر|ندارد|^\s*$/.test(t)) return null;
+  const m = t.match(/([\d]+(?:[.,]\d+)?)\s*٪?/);
+  if (!m) return null;
+  const n = Number(m[1].replace(',', ''));
+  return Number.isFinite(n) && n > 0 && n <= 100_000 ? n : null;
+}
+
 /** تبدیل مقدار «حداکثر زمان بازپرداخت» به تعداد ماه */
 export function parseTermMonths(text) {
   const t = normalizeText(text);
@@ -230,12 +247,34 @@ export function mapToProduct(url, html) {
   const hasGuarantor = /ضامن/.test(guarantee);
   const needsDeposit = /بله|دارد|الزام/.test(specSel(spec, 'نیاز به سپرده'));
 
-  // سقف مشروط: اگر خود صفحه بگوید سقف بر پایه رتبه اعتباری، میانگین حساب یا
-  // نسبت سپرده تعیین می‌شود، سقف یک «حق قطعی» نیست.
-  const ratio = normalizeText(specSel(spec, 'نسبت مبلغ وام به میزان سپرده', 'raw'));
+  // ── سقف مشروط ──────────────────────────────────────────────────────────
+  // اگر خود صفحه بگوید سقف بر پایه رتبه اعتباری، میانگین حساب یا نسبت سپرده
+  // تعیین می‌شود، سقف یک «حق قطعی» نیست و نباید در مقایسه برنده اعلام شود.
+  const ratioRaw = specSel(spec, 'نسبت مبلغ وام به میزان سپرده', 'raw');
+  const ratioNum = parseRatioPercent(ratioRaw);
+
+  // «نامشخص» یعنی نسبت سپرده نامعلوم است، نه اینکه مخالف ۱۰۰ باشد.
+  // پیش‌تر همین اشتباه باعث می‌شد بیشتر رکوردهای خودکار مشروط علامت بخورند.
+  const ratioImpliesContingent = ratioNum != null && Math.abs(ratioNum - 100) > 1;
+
   const ceilingContingent =
-    /رتبه\s*اعتباری|اعتبارسنجی|میانگین\s*حساب|سابقه\s*حساب|میزان\s*سپرده|ضوابط/.test(maxDetail) ||
-    (ratio !== '' && !/۱۰۰|100/.test(ratio));
+    /رتبه\s*اعتباری|میانگین\s*حساب|سابقه\s*حساب|ضوابط|حسب\s*امتیاز/.test(maxDetail) ||
+    ratioImpliesContingent ||
+    /رتبه\s*اعتباری|حسب\s*امتیاز/.test(specSel(spec, 'توضیحات', 'raw'));
+
+  // ── سقف بی‌معنا: بسته چند‌طرحی ─────────────────────────────────────────
+  // صفحه‌هایی مانند «طرح ایرانیار» یک بسته ۹ وامی‌اند و سقف نوشته‌شده
+  // (مثلاً ۱۰۰ میلیارد تومان برای کارگزاری‌ها) به هیچ محصول منفردی تعلق
+  // ندارد. ثبت آن به‌عنوان سقف یک محصول، جدول مقایسه را بی‌معنا می‌کند.
+  const descFull = normalizeText(specSel(spec, 'توضیحات', 'value'));
+  const descDetail = normalizeText(specSel(spec, 'توضیحات', 'detail'));
+  const planMentions = (descFull + ' ' + descDetail).match(/طرح\s+[\u0600-\u06FF]{3,}/g) ?? [];
+  const distinctPlans = new Set(planMentions.map((x) => foldForMatch(x))).size;
+  const multiPlan =
+    distinctPlans >= 4 ||
+    /طرح‌های\s*مختلف|شامل\s*\d+\s*وام|بسته\s*\d+\s*وام/.test(maxDetail + ' ' + descFull);
+
+  const amountIsMeaningful = !multiPlan && maxAmount != null;
 
   // «آخرین به‌روز رسانی» و «آخرین به روز رسانی» هر دو دیده می‌شوند؛
   // [\s\u200c\u200d]* نیم‌فاصله و نیم‌فاصله مجازی را هم می‌پذیرد.
@@ -271,12 +310,14 @@ export function mapToProduct(url, html) {
     rateLabel: rate != null ? `سود ${rate}٪` : 'نامشخص',
     regulatory: false,
     benefit: benefitFromRate(rate, meta.category),
-    minAmount,
-    maxAmount,
+    minAmount: multiPlan ? null : minAmount,
+    maxAmount: amountIsMeaningful ? maxAmount : null,
     amountLabel: tidyLabel(specSel(spec, 'سقف وام')) || 'نامشخص',
-    termMonths,
+    // در بسته چند‌طرحی، مدت بازپرداخت هم بین طرح‌ها متفاوت است
+    termMonths: multiPlan ? null : termMonths,
     termLabel: tidyLabel(specSel(spec, 'حداکثر زمان بازپرداخت')) || 'نامشخص',
-    ceilingContingent,
+    ceilingContingent: ceilingContingent || multiPlan,
+    multiPlan,
     speed: 60,
     digital: /آنلاین|اپلیکیشن|غیرحضوری/.test(descParts.join(' ')) ? 85 : 60,
     friction: hasGuarantor ? 50 : needsDeposit ? 60 : 72,
@@ -291,7 +332,8 @@ export function mapToProduct(url, html) {
       specSel(spec, 'هزینه‌های جانبی') && `هزینه جانبی: ${specSel(spec, 'هزینه‌های جانبی')}`,
       installment && `قسط تقریبی: ${installment.toLocaleString('en-US')} تومان`,
     ].filter(Boolean),
-    confidence: 'medium',
+    // بسته چند‌طرحی نمی‌تواند «ارقام قطعی» داشته باشد
+    confidence: multiPlan ? 'low' : 'medium',
     autoDiscovered: true,
     sourceKind: 'aggregator',
     lastUpdated: lastUpdated || null,
@@ -303,6 +345,7 @@ export function mapToProduct(url, html) {
     },
     extra: {
       loanType: specSel(spec, 'نوع وام') || meta.label,
+      ...(multiPlan ? { plans: distinctPlans, note: 'بسته چند‌طرحی؛ سقف و مدت منفرد ندارد' } : {}),
       installment,
       totalWithInterest: parseTomanAmount(specSel(spec, 'مجموع وام و سود')),
       totalInterest: parseTomanAmount(specSel(spec, 'مجموع سود وام')),

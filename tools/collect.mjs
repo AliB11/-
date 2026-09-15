@@ -131,10 +131,16 @@ export function mergeProducts(existing, incoming) {
     const next = { ...current };
     let changed = false;
 
+    // برای رکورد دست‌نویس، مقدار تهی نباید مقدار انسانی را پاک کند.
+    // برای رکورد خودکار برعکس است: اگر تجزیه تازه بگوید سقف یا مدت وجود ندارد
+    // (مثلاً صفحه‌ای که بسته چند‌طرحی است)، همان حکم معتبر است و باید مقدار
+    // قدیمی و نادرست را پاک کند.
+    const skipEmpty = isCurated;
+
     for (const [k, v] of Object.entries(candidate)) {
       if (frozen.includes(k)) continue;
-      if (v === null || v === undefined || v === '') continue;
-      if (Array.isArray(v) && v.length === 0) continue;
+      if (skipEmpty && (v === null || v === undefined || v === '')) continue;
+      if (skipEmpty && Array.isArray(v) && v.length === 0) continue;
       const prev = next[k];
       const same =
         Array.isArray(prev) && Array.isArray(v)
@@ -243,6 +249,16 @@ async function main() {
         ok: true,
         targets: bankResult.data.targets,
         reachable: bankResult.data.ok,
+        // فهرست کامل اهداف با وضعیت هر یک — تا شکست یک آدرس در صدای داده
+        // گم نشود و بتوان هدف خراب را مستقیم اصلاح کرد
+        detail: (bankResult.data.observations ?? [])
+          .map((o) => ({
+            id: o.id,
+            url: o.url,
+            ok: o.ok,
+            ...(o.ok ? { rates: (o.rates ?? []).slice(0, 6) } : { error: o.error }),
+          }))
+          .sort((a, b) => Number(b.ok) - Number(a.ok)),
         ms: bankResult.ms,
       });
       log(`بانک‌ها: ${bankResult.data.ok} از ${bankResult.data.targets} هدف پاسخ داد`);
