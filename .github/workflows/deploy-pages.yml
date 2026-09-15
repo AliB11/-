@@ -1,12 +1,10 @@
 name: انتشار روی GitHub Pages
 
 on:
+  # به‌روزرسانی خودکار داده روی همین شاخه commit می‌کند، پس همان push برای
+  # انتشار کافی است؛ افزودن workflow_run باعث دو انتشار هم‌زمان می‌شد.
   push:
     branches: [main]
-  workflow_run:
-    # پس از هر بار به‌روزرسانی موفق داده، سایت منتشر می‌شود
-    workflows: ['به‌روزرسانی خودکار داده']
-    types: [completed]
   workflow_dispatch:
 
 concurrency:
@@ -23,8 +21,6 @@ jobs:
     name: آماده‌سازی بسته انتشار
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # اگر این اجرا ناشی از workflow_run است، فقط در صورت موفقیت ادامه بده
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: دریافت مخزن
