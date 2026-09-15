@@ -48,7 +48,9 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: '22'
-          cache: npm
+          # بدون cache: npm — این پروژه هیچ وابستگی بیرونی ندارد و فایل
+          # قفل (lockfile) هم ندارد؛ فعال کردن کش باعث می‌شود همین مرحله
+          # با خطای «lock file یافت نشد» شکست بخورد و خط لوله داده بخوابد.
 
       - name: گزارش وضعیت پیش از اجرا
         id: before
