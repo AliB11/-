@@ -137,6 +137,7 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -2;
+  pointer-events: none;
   background:
     radial-gradient(ellipse 80% 55% at 82% -8%, rgba(124, 140, 255, 0.24), transparent 60%),
     radial-gradient(ellipse 70% 50% at 12% 4%, rgba(47, 224, 168, 0.17), transparent 58%),
@@ -1098,6 +1099,18 @@ table.compare .prod-bank { color: var(--text-4); font-size: var(--fs-3xs); }
 }
 .drawer-backdrop.is-open { opacity: 1; pointer-events: auto; }
 
+/*
+  کشو به لبه «شروع» چسبیده است (inset-inline-start) یعنی در صفحه راست‌به‌چپ
+  لبه راست. اما translateX همیشه فیزیکی است: مقدار منفی به سمت چپ می‌برد.
+  اگر حالت بسته با translateX(-102%) تعریف شود، در RTL کشو به‌جای رفتن به
+  بیرونِ صفحه، به وسط صفحه کشیده می‌شود و یک قاب تمام‌قد روی محتوا می‌نشیند.
+  پس جهت جابه‌جایی باید با جهت سند هم‌خوان شود.
+
+  visibility هم افزوده شده تا حتی اگر جابه‌جایی در مرورگری درست کار نکند،
+  کشوی بسته هیچ‌وقت دیده نشود، کلیک نخورد و در ترتیب Tab قرار نگیرد.
+  مقدار visibility در طول انتقال «visible» می‌ماند و فقط در پایانِ بستن،
+  hidden می‌شود؛ بنابراین انیمیشن خروج هم کامل دیده می‌شود.
+*/
 .drawer {
   position: fixed;
   inset-block: 0;
@@ -1109,11 +1122,18 @@ table.compare .prod-bank { color: var(--text-4); font-size: var(--fs-3xs); }
   background: linear-gradient(160deg, var(--ink-750), var(--ink-850));
   border-inline-end: 1px solid var(--hairline-strong);
   box-shadow: var(--shadow-xl);
-  transform: translateX(-102%);
-  transition: transform var(--dur-slow) var(--ease);
+  transform: translateX(-102%);           /* LTR: لبه چپ ← پنهان به چپ */
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform var(--dur-slow) var(--ease),
+              visibility var(--dur-slow) var(--ease);
 }
-[dir='rtl'] .drawer { inset-inline-start: 0; transform: translateX(-102%); }
-.drawer.is-open { transform: translateX(0); }
+[dir='rtl'] .drawer { transform: translateX(102%); } /* RTL: لبه راست ← پنهان به راست */
+.drawer.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
+}
 
 .drawer-head {
   display: flex;

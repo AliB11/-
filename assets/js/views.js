@@ -117,8 +117,18 @@ export function heroHTML() {
 
 /* ---------- فیلترها ---------- */
 
+/**
+ * ساخت یک گزینه <option>.
+ *
+ * مقایسه به‌صورت رشته‌ای انجام می‌شود: مقدار گزینه در HTML همیشه رشته است، ولی
+ * مقدار ذخیره‌شده در وضعیت می‌تواند عدد باشد (مثل f.minScore که با
+ * Number(value) نگه داده می‌شود). با مقایسه دقیقِ `'65' === 65` گزینه انتخابی
+ * کاربر پس از بازخوانی صفحه علامت‌گذاری نمی‌شد؛ یعنی فیلتر اعمال بود ولی
+ * فهرست «نمایش همه» را نشان می‌داد.
+ */
 function option(value, label, selected) {
-  return `<option value="${esc(value)}"${value === selected ? ' selected' : ''}>${esc(label)}</option>`;
+  const isSelected = String(value) === String(selected ?? '');
+  return `<option value="${esc(value)}"${isSelected ? ' selected' : ''}>${esc(label)}</option>`;
 }
 
 export function filtersHTML() {

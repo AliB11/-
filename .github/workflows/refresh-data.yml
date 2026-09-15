@@ -36,6 +36,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
+    # shell: bash به‌جای پوسته پیش‌فرض، تا pipefail فعال شود.
+    # چرا مهم است: خروجی واکشی با `| tee collect.log` هم به لاگ می‌رود هم به
+    # کنسول. در پوسته پیش‌فرض (bash -e بدون pipefail) کد خروجِ همان tee ملاک
+    # است؛ یعنی شکست سخت collect.mjs بی‌صدا رد می‌شد و اجرا «موفق» گزارش
+    # می‌کرد، در حالی که داده‌ای واکشی نشده بود.
+    defaults:
+      run:
+        shell: bash
+
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+      signature_before: ${{ steps.before.outputs.signature }}
+      signature_after: ${{ steps.diff.outputs.signature }}
+      count_before: ${{ steps.before.outputs.count }}
+      count_after: ${{ steps.diff.outputs.count }}
+
     steps:
       - name: دریافت مخزن
         uses: actions/checkout@v7
@@ -52,15 +68,23 @@ jobs:
           # قفل (lockfile) هم ندارد؛ فعال کردن کش باعث می‌شود همین مرحله
           # با خطای «lock file یافت نشد» شکست بخورد و خط لوله داده بخوابد.
 
+      # امضای داده = اثر انگشتِ محتوای داده بدون فیلدهای فرار (مهر ساخت فایل،
+      # زمان اجرا، مدت واکشی). با آن می‌فهمیم واکشی واقعاً چیزی عوض کرده یا
+      # فقط مهرهای زمانی جابه‌جا شده‌اند. بدون این تفکیک، هر اجرا — حتی وقتی
+      # هیچ منبعی پاسخ نمی‌دهد — یک کامیت بی‌محتوا و یک انتشار بیهوده می‌سازد.
       - name: گزارش وضعیت پیش از اجرا
         id: before
         run: |
-          echo "count=$(node -e "console.log(require('./data/products.json').products.length)")" >> "$GITHUB_OUTPUT"
-          echo "hash=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          SIGNATURE=$(node tools/data-signature.mjs --field=signature)
+          COUNT=$(node tools/data-signature.mjs --field=products)
+          echo "signature=$SIGNATURE" >> "$GITHUB_OUTPUT"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "branch=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          echo "وضعیت پیش از اجرا: $COUNT محصول، امضا $SIGNATURE، شاخه ${GITHUB_REF_NAME}"
 
-      # مرحله واکشی: هر منبع مستقل شکست می‌خورد و کل اجرا متوقف نمی‌شود.
-      # پارامتر continue-on-error عامدانه تنظیم نشده؛ collect خودش خطاها را می‌گیرد
-      # و در صورت شکست کامل (مثلاً نبود داده پایه) با کد ۱ خارج می‌شود.
+      # مرحله واکشی: هر منبع مستقل شکست می‌خورد و کل اجرا متوقف نمی‌شود
+      # (runSource در tools/lib/http.mjs). اما شکست سختِ خودِ collect — مثل نبود
+      # داده پایه — باید اجرا را سرخ کند؛ pipefail بالا همین را تضمین می‌کند.
       - name: واکشی داده از منابع
         id: collect
         env:
@@ -73,14 +97,15 @@ jobs:
           fi
 
           # خلاصه سلامت منابع در صفحه اجرا — تا خرابی یک منبع بدون خواندن
-          # کل لاگ دیده شود
+          # کل لاگ دیده شود. `|| true` چون grep بدون تطابق با کد ۱ برمی‌گردد و
+          # با pipefail فعال، مرحله را بی‌دلیل سرخ می‌کرد.
           {
             echo "### سلامت منابع"
             echo ""
             echo '```'
-            grep -E "^\[(collect|verbose)\]" collect.log | head -60
+            grep -E "^\[(collect|verbose)\]" collect.log | head -60 || true
             echo '```'
-          } >> "$GITHUB_STEP_SUMMARY" 
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: اعتبارسنجی داده
         run: node scripts/validate-data.mjs
@@ -95,27 +120,48 @@ jobs:
       - name: بررسی تغییرات
         id: diff
         run: |
-          if git diff --quiet -- data/; then
+          SIGNATURE=$(node tools/data-signature.mjs --field=signature)
+          COUNT=$(node tools/data-signature.mjs --field=products)
+          BEFORE="${{ steps.before.outputs.signature }}"
+
+          echo "signature=$SIGNATURE" >> "$GITHUB_OUTPUT"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+          if [ "$SIGNATURE" = "$BEFORE" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "تغییری در داده‌ها ثبت نشد."
+            echo "محتوای داده تغییر نکرد؛ کامیتی ساخته نمی‌شود."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            git diff --stat -- data/
+            echo "محتوای داده تغییر کرد: $BEFORE → $SIGNATURE"
           fi
+
+          # diff خام فقط برای گزارش‌گری است (مهرهای زمانی هم در آن دیده می‌شود)
+          git diff --stat -- data/ || true
 
       - name: ثبت تغییرات داده
         if: ${{ steps.diff.outputs.changed == 'true' && inputs.dry_run != true }}
+        env:
+          BEFORE_COUNT: ${{ steps.before.outputs.count }}
+          AFTER_COUNT: ${{ steps.diff.outputs.count }}
+          SIG_BEFORE: ${{ steps.before.outputs.signature }}
+          SIG_AFTER: ${{ steps.diff.outputs.signature }}
+          BRANCH: ${{ steps.before.outputs.branch }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/
-          AFTER=$(node -e "console.log(require('./data/products.json').products.length)")
-          BEFORE="${{ steps.before.outputs.count }}"
-          git commit -m "chore(data): به‌روزرسانی خودکار محصولات بانکی
 
-          محصولات: ${BEFORE} → ${AFTER}
-          اجرا: ${{ github.run_id }}"
-          git push
+          git commit -m "chore(data): به‌روزرسانی خودکار محصولات بانکی" -m "محصولات: ${BEFORE_COUNT} → ${AFTER_COUNT}
+          امضای داده: ${SIG_BEFORE} → ${SIG_AFTER}
+          اجرا: ${RUN_URL}"
+
+          # اگر بین واکشی و ثبت، کامیت دیگری روی شاخه نشسته باشد (مثلاً ادغام
+          # یک PR)، push بدون همگام‌سازی رد می‌شود و به‌روزرسانی همان روز گم
+          # می‌شود. rebase این را حل می‌کند؛ در صورت تضاد واقعی، اجرا سرخ می‌شود
+          # و ایشو اطلاع‌رسانی ساخته می‌شود — بهتر از force push و از دست رفتن داده.
+          git pull --rebase origin "$BRANCH"
+          git push origin "HEAD:$BRANCH"
 
       - name: بارگذاری گزارش تشخیصی
         if: always()
@@ -130,17 +176,60 @@ jobs:
 
       - name: خلاصه اجرا
         if: always()
+        env:
+          CHANGED: ${{ steps.diff.outputs.changed }}
+          SIG_BEFORE: ${{ steps.before.outputs.signature }}
+          SIG_AFTER: ${{ steps.diff.outputs.signature }}
+          COUNT_BEFORE: ${{ steps.before.outputs.count }}
+          COUNT_AFTER: ${{ steps.diff.outputs.count }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          JOB_STATUS: ${{ job.status }}
         run: |
+          MODE="کامل"
+          if [ "$DRY_RUN" = "true" ]; then MODE="آزمایشی"; fi
+
+          if [ "$CHANGED" = "true" ]; then
+            CHANGE_TEXT="بله"
+          else
+            CHANGE_TEXT="خیر"
+          fi
+
           {
             echo "### وضعیت خط لوله داده"
             echo ""
             echo "| مورد | مقدار |"
             echo "| --- | --- |"
-            echo "| حالت اجرا | \`${{ inputs.dry_run == true && 'آزمایشی' || 'کامل' }}\` |"
-            echo "| محصولات پیش از اجرا | ${{ steps.before.outputs.count }} |"
-            echo "| تغییر در داده | ${{ steps.diff.outputs.changed == 'true' && 'بله' || 'خیر' }} |"
-            echo "| نتیجه | ${{ job.status }} |"
+            echo "| حالت اجرا | ${MODE} |"
+            echo "| شاخه | ${GITHUB_REF_NAME} |"
+            echo "| محصولات پیش از اجرا | ${COUNT_BEFORE:-—} |"
+            echo "| محصولات پس از اجرا | ${COUNT_AFTER:-—} |"
+            echo "| امضای داده | ${SIG_BEFORE:-—} → ${SIG_AFTER:-—} |"
+            echo "| تغییر محتوایی | ${CHANGE_TEXT} |"
+            echo "| نتیجه | ${JOB_STATUS} |"
           } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$CHANGED" != "true" ]; then
+            {
+              echo ""
+              echo "> امضای داده تغییر نکرد: هیچ منبعی مقدار تازه‌ای برنگرداند."
+              echo "> سایت با همان داده معتبر قبلی به کار ادامه می‌دهد و انتشار بیهوده انجام نشد."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # در صورت شکست، آخرین خطوط لاگ در همان صفحه اجرا دیده می‌شود تا برای
+      # تشخیص اولیه لازم نباشد artifact بارگیری شود.
+      - name: گزارش لاگ در شکست
+        if: failure()
+        run: |
+          if [ -f collect.log ]; then
+            {
+              echo "### آخرین خطوط لاگ واکشی"
+              echo ""
+              echo '```'
+              tail -40 collect.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       # در صورت شکست کامل، یک ایشو ثبت می‌شود تا سکوت داده‌ای رخ ندهد
       - name: اطلاع‌رسانی شکست
@@ -148,35 +237,71 @@ jobs:
         uses: actions/github-script@v9
         with:
           script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const wanted = [
+              { name: 'data-pipeline', color: 'd93f0b', description: 'خرابی خط لوله گردآوری داده' },
+              { name: 'automated', color: 'ededed', description: 'ثبت خودکار توسط جریان کاری' },
+            ];
+
+            // برچسب‌ها باید پیش از استفاده در مخزن وجود داشته باشند؛ در غیر این
+            // صورت ساخت ایشو با خطای 422 شکست می‌خورد و خودِ اطلاع‌رسانی از دست
+            // می‌رود. پس هر برچسب که نبود، ساخته می‌شود.
+            const usable = [];
+            for (const label of wanted) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: label.name });
+                usable.push(label.name);
+              } catch {
+                try {
+                  await github.rest.issues.createLabel({ owner, repo, ...label });
+                  usable.push(label.name);
+                } catch (err) {
+                  core.warning(`ساخت برچسب «${label.name}» ناموفق بود: ${err.message}`);
+                }
+              }
+            }
+
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
             const title = '⚠️ خط لوله به‌روزرسانی داده شکست خورد';
             const body = [
-              `اجرای [${context.runId}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) ناموفق بود.`,
+              `اجرای [${context.runId}](${runUrl}) ناموفق بود.`,
+              '',
+              `- رویداد: \`${context.eventName}\``,
+              `- شغل: \`${context.job}\``,
+              `- کاربر فراخوان: \`${context.actor}\``,
               '',
               'تا رفع مشکل، سامانه با آخرین داده معتبر موجود کار می‌کند و داده‌ای حذف نشده است.',
-              '',
-              `کاربر فراخوان: \`${context.actor}\``,
+              'گزارش تشخیصی (`collect-report`) در همان اجرای ناموفق برای بارگیری موجود است.',
             ].join('\n');
 
-            const existing = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              labels: 'data-pipeline',
-            });
+            try {
+              const existing = await github.rest.issues.listForRepo({
+                owner,
+                repo,
+                state: 'open',
+                labels: 'data-pipeline',
+              });
 
-            if (existing.data.length === 0) {
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title,
-                body,
-                labels: ['data-pipeline', 'automated'],
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: existing.data[0].number,
-                body,
-              });
+              if (existing.data.length === 0) {
+                const created = await github.rest.issues.create({
+                  owner,
+                  repo,
+                  title,
+                  body,
+                  labels: usable,
+                });
+                core.info(`ایشو ${created.data.number} ساخته شد`);
+              } else {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: existing.data[0].number,
+                  body,
+                });
+                core.info(`به ایشو ${existing.data[0].number} نظر افزوده شد`);
+              }
+            } catch (err) {
+              // شکست در اطلاع‌رسانی نباید وضعیت اجرا را پنهان کند؛ صریح هشدار می‌دهیم
+              core.warning(`ثبت ایشو اطلاع‌رسانی ناموفق بود: ${err.message}`);
             }

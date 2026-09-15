@@ -196,6 +196,33 @@ export async function pool(tasks, limit = 4) {
 }
 
 /**
+ * بازکردن پاکتِ نتایج `pool` و بازگرداندن زمینه هر کار.
+ *
+ * چرا لازم است: `pool` هر نتیجه را در `{ok,data}` می‌پیچد تا استثنای یک کار
+ * بقیه را نکشد. اگر مصرف‌کننده همان پاکت را «نتیجه کار» فرض کند، دو اتفاق
+ * بد می‌افتد:
+ *
+ *   ۱. دسترسی به زمینه (مثل `r.target.id`) با «undefined» استثنا می‌دهد و کل
+ *      منبع از دست می‌رود.
+ *   ۲. داده واقعی یک لایه عمیق‌تر است؛ بنابراین آنچه «محصول» خوانده می‌شود
+ *      پوسته‌ای بدون فیلد `product` است و ادغام، بی‌صدا آن را دور می‌اندازد
+ *      (خط لوله موفق گزارش می‌شود ولی داده‌ای به‌روز نمی‌شود).
+ *
+ * @template T
+ * @param {Array<{ok:true,data:any}|{ok:false,error?:string,errorObject?:Error}>} wrapped
+ * @param {T[]} contexts زمینه هر کار (هم‌ترتیب با tasks)
+ * @param {string} contextKey نام کلیدی که زمینه با آن بازمی‌گردد
+ * @returns {Array<any>}
+ */
+export function unwrapPool(wrapped, contexts = [], contextKey = 'context') {
+  return (wrapped ?? []).map((w, i) => {
+    if (w && w.ok) return w.data;
+    const error = w?.error ?? (w?.errorObject ? describeError(w.errorObject) : 'خطای نامشخص');
+    return { [contextKey]: contexts[i], ok: false, error };
+  });
+}
+
+/**
  * نقشه‌برداری موازی روی یک آرایه با حفظ ترتیب.
  * @template T,U
  * @param {T[]} items
