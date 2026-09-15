@@ -41,6 +41,9 @@ jobs:
       - name: دریافت مخزن
         uses: actions/checkout@v4
         with:
+          # روی pull_request، پیش‌فرض یک commit ادغام موقت است که push روی آن
+          # ممکن نیست؛ برای یکپارچگی با شاخه، صریحاً همان شاخه دریافت می‌شود.
+          ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 1
           persist-credentials: true
 
@@ -63,7 +66,7 @@ jobs:
         env:
           LIMIT: ${{ inputs.limit || '120' }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ inputs.dry_run }}" = "true" ]; then
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
             node tools/collect.mjs --limit="$LIMIT" --dry-run --verbose 2>&1 | tee collect.log
           else
             node tools/collect.mjs --limit="$LIMIT" --verbose 2>&1 | tee collect.log
@@ -86,7 +89,7 @@ jobs:
         run: node --test "tests/*.test.mjs"
 
       - name: بازسازی بسته داده
-        if: ${{ github.event_name != 'pull_request' && inputs.dry_run != true }}
+        if: ${{ inputs.dry_run != true }}
         run: node tools/build-bundle.mjs
 
       - name: بررسی تغییرات
@@ -101,7 +104,7 @@ jobs:
           fi
 
       - name: ثبت تغییرات داده
-        if: ${{ github.event_name != 'pull_request' && steps.diff.outputs.changed == 'true' && inputs.dry_run != true }}
+        if: ${{ steps.diff.outputs.changed == 'true' && inputs.dry_run != true }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
