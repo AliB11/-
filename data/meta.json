@@ -1,16 +1,40 @@
 {
-  "autoDiscovered": 0,
+  "autoDiscovered": 120,
   "counts": {
-    "credit": 15,
+    "credit": 52,
     "deposits": 17,
-    "loans": 17,
+    "loans": 100,
     "loyalty": 10,
-    "total": 59
+    "total": 179
   },
-  "lastRun": "2026-09-15T17:22:36.272Z",
-  "lastRunDurationMs": 22,
-  "lastRunMode": "offline",
-  "sources": [],
+  "lastRun": "2026-09-15T17:36:09.623Z",
+  "lastRunDurationMs": 106134,
+  "lastRunMode": "full",
+  "sources": [
+    {
+      "attempted": 120,
+      "discovered": 550,
+      "failures": 0,
+      "ms": 5779,
+      "name": "rade.ir",
+      "ok": true,
+      "parsed": 120
+    },
+    {
+      "ms": 88183,
+      "name": "bank-sites",
+      "ok": true,
+      "reachable": 2,
+      "targets": 20
+    },
+    {
+      "ms": 12151,
+      "name": "macro-indicators",
+      "ok": true,
+      "sourcesOk": 2,
+      "touched": []
+    }
+  ],
   "stale": 0,
   "version": 2
 }
