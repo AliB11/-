@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>رادار محصولات بانکی ایران | مقایسه منابع، اعتبار، تسهیلات و امتیاز</title>
+  <style>
+    :root{
+      --bg:#07111f; --bg2:#0b1730; --panel:rgba(255,255,255,.075); --panel2:rgba(255,255,255,.11);
+      --line:rgba(255,255,255,.14); --txt:#edf5ff; --muted:#9eb1ca; --brand:#23d5ab; --brand2:#6a7cff;
+      --warn:#ffcc66; --bad:#ff6b7a; --good:#47e59c; --shadow:0 24px 70px rgba(0,0,0,.38);
+      --radius:24px; --radius2:16px; --font:Tahoma, Arial, sans-serif;
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:var(--font);background:
+      radial-gradient(circle at 15% 8%, rgba(35,213,171,.22), transparent 28%),
+      radial-gradient(circle at 88% 16%, rgba(106,124,255,.28), transparent 34%),
+      linear-gradient(145deg,var(--bg),#040814 72%);color:var(--txt);min-height:100vh}
+    a{color:inherit}.wrap{max-width:1440px;margin:auto;padding:24px}.glass{background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.055));border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(22px);border-radius:var(--radius)}
+    .hero{position:relative;overflow:hidden;padding:28px;display:grid;grid-template-columns:1.35fr .65fr;gap:20px;align-items:stretch}.hero:before{content:"";position:absolute;inset:-120px auto auto -80px;width:300px;height:300px;border-radius:50%;background:rgba(35,213,171,.20);filter:blur(14px)}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid rgba(35,213,171,.35);border-radius:999px;color:#bfffee;background:rgba(35,213,171,.08);font-size:12px}.hero h1{font-size:34px;line-height:1.55;margin:14px 0 8px;letter-spacing:-1px}.hero p{color:var(--muted);line-height:2;margin:0;max-width:880px}.heroActions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}.btn{border:0;border-radius:15px;padding:12px 16px;font-family:var(--font);cursor:pointer;color:var(--txt);background:var(--panel2);border:1px solid var(--line);transition:.2s}.btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.16)}.btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#04101a;font-weight:700;border:0}.btn.danger{background:rgba(255,107,122,.12);border-color:rgba(255,107,122,.35);color:#ffd5db}.btn.small{padding:8px 11px;border-radius:12px;font-size:12px}.heroPanel{padding:20px;display:flex;flex-direction:column;gap:14px}.health{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric{padding:15px;border-radius:18px;background:rgba(255,255,255,.08);border:1px solid var(--line)}.metric b{font-size:24px;display:block}.metric span{font-size:12px;color:var(--muted)}
+    .ticker{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}.chip{font-size:12px;color:#dce8ff;background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:999px;padding:7px 11px}.grid{display:grid;grid-template-columns:280px 1fr;gap:18px;margin-top:18px}.side{padding:18px;height:max-content;position:sticky;top:18px}.sectionTitle{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.sectionTitle h2,.sectionTitle h3{margin:0;font-size:16px}.field{margin:13px 0}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}select,input,textarea{width:100%;background:rgba(4,8,20,.55);border:1px solid var(--line);color:var(--txt);border-radius:14px;padding:12px;font-family:var(--font);outline:0}textarea{min-height:120px;direction:ltr;text-align:left}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}.tab{padding:14px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid var(--line);cursor:pointer;text-align:center;color:var(--muted);transition:.2s}.tab.active{color:#06101c;background:linear-gradient(135deg,var(--brand),#e8ff7a);font-weight:800;box-shadow:0 12px 30px rgba(35,213,171,.2)}
+    .main{min-width:0}.toolbar{padding:14px;margin-bottom:16px;display:grid;grid-template-columns:1.4fr repeat(3,.7fr) auto;gap:10px;align-items:end}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{padding:17px;border-radius:22px;background:rgba(255,255,255,.075);border:1px solid var(--line);position:relative;overflow:hidden}.card:before{content:"";position:absolute;top:-60px;left:-60px;width:140px;height:140px;border-radius:50%;background:var(--accent,rgba(35,213,171,.18));filter:blur(8px)}.cardTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;position:relative}.bank{display:flex;gap:10px;align-items:center}.logo{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.07));border:1px solid var(--line);font-weight:800}.productName{margin:0;font-size:16px;line-height:1.6}.bankName{font-size:12px;color:var(--muted)}.score{min-width:66px;text-align:center;border-radius:18px;padding:8px;background:rgba(35,213,171,.10);border:1px solid rgba(35,213,171,.30)}.score b{display:block;font-size:22px;color:#baffec}.score span{font-size:10px;color:var(--muted)}.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.mini{background:rgba(0,0,0,.18);border:1px solid var(--line);padding:10px;border-radius:14px;min-height:62px}.mini span{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}.mini b{font-size:13px;line-height:1.6}.desc{color:#c7d6ea;font-size:13px;line-height:1.9;min-height:50px}.tags{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.tag{font-size:11px;padding:6px 9px;border-radius:999px;background:rgba(106,124,255,.12);border:1px solid rgba(106,124,255,.28);color:#d7dcff}.fresh{font-size:11px;color:var(--muted)}.fresh.good{color:#97ffd2}.fresh.warn{color:#ffe0a3}.fresh.bad{color:#ffb5bd}.cardActions{display:flex;gap:8px;margin-top:13px}.rankList{padding:16px;margin-top:16px}.rankRow{display:grid;grid-template-columns:36px 1fr 58px;gap:10px;align-items:center;margin:11px 0}.bar{height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}.bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--brand),var(--brand2));width:50%}.tableBox{margin-top:16px;overflow:auto;padding:12px}.compareTable{width:100%;border-collapse:separate;border-spacing:0 8px;min-width:900px}.compareTable th{font-size:12px;color:var(--muted);font-weight:400;text-align:right;padding:8px}.compareTable td{background:rgba(255,255,255,.07);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px;font-size:13px}.compareTable td:first-child{border-radius:0 14px 14px 0;border-right:1px solid var(--line)}.compareTable td:last-child{border-radius:14px 0 0 14px;border-left:1px solid var(--line)}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.64);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal.show{display:flex}.modalContent{max-width:920px;width:100%;max-height:90vh;overflow:auto;padding:22px}.close{float:left}.updateGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.notice{padding:14px;border-radius:18px;background:rgba(255,204,102,.10);border:1px solid rgba(255,204,102,.3);color:#ffe8b5;line-height:1.8;font-size:13px}.sourceList{display:grid;gap:8px}.sourceItem{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:12px}.toast{position:fixed;bottom:18px;right:18px;padding:13px 16px;border-radius:16px;background:#10233a;border:1px solid var(--line);box-shadow:var(--shadow);display:none;z-index:30}.toast.show{display:block}.empty{padding:34px;text-align:center;color:var(--muted)}.weights{display:grid;gap:8px}.rangeRow{display:grid;grid-template-columns:95px 1fr 38px;gap:8px;align-items:center;font-size:12px;color:var(--muted)}input[type=range]{padding:0}.footer{color:var(--muted);font-size:12px;line-height:1.9;margin:18px 0 6px;text-align:center}
+    @media(max-width:1100px){.hero,.grid{grid-template-columns:1fr}.side{position:static}.cards{grid-template-columns:repeat(2,1fr)}.toolbar{grid-template-columns:1fr 1fr}.tabs{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:720px){.wrap{padding:12px}.hero h1{font-size:24px}.cards,.updateGrid,.health{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.meta{grid-template-columns:1fr}.tabs{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero glass">
+      <div>
+        <span class="badge">● وب‌بیس مقایسه هوشمند محصولات بانکی ایران</span>
+        <h1>رادار محصولات بانکی؛ رتبه‌بندی جذابیت از دید مشتری، با امکان به‌روزرسانی داده‌ها</h1>
+        <p>این فایل تک‌صفحه‌ای، محصولات منابعی، اعتباری، تسهیلاتی و امتیازی بانک‌ها را در یک تجربه RTL حرفه‌ای دسته‌بندی، فیلتر، مقایسه و امتیازدهی می‌کند. داده‌ها از طریق ورود دستی، بارگذاری JSON/CSV یا اتصال به خروجی جمع‌آوری‌کننده قابل به‌روزرسانی هستند.</p>
+        <div class="heroActions">
+          <button class="btn primary" onclick="openUpdate()">به‌روزرسانی اطلاعات</button>
+          <button class="btn" onclick="downloadJSON()">خروجی JSON</button>
+          <button class="btn" onclick="downloadCSV()">خروجی CSV</button>
+          <button class="btn" onclick="resetData()">بازگشت به داده نمونه</button>
+        </div>
+        <div class="ticker" id="ticker"></div>
+      </div>
+      <aside class="heroPanel glass">
+        <div class="sectionTitle"><h3>سلامت داده‌ها</h3><span id="healthBadge" class="chip">در حال محاسبه…</span></div>
+        <div class="health">
+          <div class="metric"><b id="totalProducts">0</b><span>محصول ثبت‌شده</span></div>
+          <div class="metric"><b id="totalBanks">0</b><span>بانک/مؤسسه</span></div>
+          <div class="metric"><b id="freshProducts">0</b><span>به‌روز کمتر از ۳۰ روز</span></div>
+          <div class="metric"><b id="avgScore">0</b><span>میانگین جذابیت</span></div>
+        </div>
+        <div class="notice" id="updateNotice">برای «آخرین وضعیت»، منبع رسمی هر محصول را در داده‌ها نگه دارید و ماهانه به‌روزرسانی کنید.</div>
+      </aside>
+    </section>
+
+    <section class="grid">
+      <aside class="side glass">
+        <div class="sectionTitle"><h2>فیلتر و وزن‌دهی</h2></div>
+        <div class="field"><label>جستجو در بانک، محصول، توضیح</label><input id="q" placeholder="مثلاً: وام ازدواج، سپرده، باشگاه…" oninput="render()"></div>
+        <div class="field"><label>بانک</label><select id="bankFilter" onchange="render()"></select></div>
+        <div class="field"><label>حداقل جذابیت</label><select id="scoreFilter" onchange="render()"><option value="0">همه</option><option value="60">۶۰ به بالا</option><option value="75">۷۵ به بالا</option><option value="85">۸۵ به بالا</option></select></div>
+        <div class="field"><label>کانال ارائه</label><select id="digitalFilter" onchange="render()"><option value="all">همه</option><option value="yes">کاملاً/نیمه آنلاین</option><option value="no">نیازمند شعبه</option></select></div>
+        <div class="field"><label>مرتب‌سازی</label><select id="sortBy" onchange="render()"><option value="score">بیشترین جذابیت</option><option value="fresh">جدیدترین به‌روزرسانی</option><option value="rate">بالاترین نرخ/مزیت</option><option value="speed">سریع‌ترین دسترسی</option></select></div>
+        <hr style="border-color:var(--line);opacity:.4">
+        <div class="field"><label>وزن‌های امتیازدهی از دید مشتری</label></div>
+        <div class="weights">
+          <div class="rangeRow"><span>مزیت مالی</span><input id="wBenefit" type="range" min="0" max="50" value="28" oninput="syncWeights();render()"><b id="wBenefitV">28</b></div>
+          <div class="rangeRow"><span>سهولت/دیجیتال</span><input id="wDigital" type="range" min="0" max="40" value="20" oninput="syncWeights();render()"><b id="wDigitalV">20</b></div>
+          <div class="rangeRow"><span>سرعت</span><input id="wSpeed" type="range" min="0" max="30" value="16" oninput="syncWeights();render()"><b id="wSpeedV">16</b></div>
+          <div class="rangeRow"><span>وثیقه/ریسک</span><input id="wFriction" type="range" min="0" max="30" value="18" oninput="syncWeights();render()"><b id="wFrictionV">18</b></div>
+          <div class="rangeRow"><span>تازگی داده</span><input id="wFresh" type="range" min="0" max="20" value="10" oninput="syncWeights();render()"><b id="wFreshV">10</b></div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="tabs" id="tabs"></div>
+        <div class="toolbar glass">
+          <div class="field" style="margin:0"><label>نمایش سریع</label><select id="quick" onchange="quickFilter()"><option value="all">همه محصولات دسته</option><option value="noCollateral">بدون ضامن/وثیقه سنگین</option><option value="digital">دیجیتال‌محور</option><option value="fresh">به‌روز در ۳۰ روز اخیر</option><option value="highValue">مزیت مالی بالا</option></select></div>
+          <div class="field" style="margin:0"><label>مقایسه</label><button class="btn" onclick="scrollCompare()">نمایش جدول مقایسه</button></div>
+          <div class="field" style="margin:0"><label>داده</label><button class="btn" onclick="openUpdate()">مرکز داده</button></div>
+          <div class="field" style="margin:0"><label>راهنما</label><button class="btn" onclick="showMethod()">روش امتیازدهی</button></div>
+          <button class="btn primary" onclick="render(true)">اعمال</button>
+        </div>
+        <div class="cards" id="cards"></div>
+        <div class="rankList glass" id="rankBox"></div>
+        <div class="tableBox glass" id="compareBox"></div>
+      </main>
+    </section>
+    <div class="footer">نسخه تک‌فایلی index.html — برای داده قطعی، هر رکورد باید با منبع رسمی بانک و تاریخ مشاهده نگهداری شود. اجرای جمع‌آوری خودکار ماهانه در فایل کاملاً استاتیک فقط هنگام باز بودن مرورگر ممکن است؛ برای اتوماسیون واقعی به کران‌جاب/سرور یا GitHub Actions نیاز است.</div>
+  </div>
+
+  <div class="modal" id="updateModal">
+    <div class="modalContent glass">
+      <button class="btn close" onclick="closeUpdate()">بستن</button>
+      <h2>مرکز به‌روزرسانی داده‌ها</h2>
+      <p style="color:var(--muted);line-height:2">سه مسیر پیش‌بینی شده است: ۱) چسباندن JSON، ۲) بارگذاری فایل JSON/CSV، ۳) دریافت از URL خروجی جمع‌آوری‌کننده. به علت محدودیت CORS، خود فایل HTML ممکن است نتواند مستقیم صفحات بانک‌ها را بخواند؛ بهتر است یک اسکریپت ماهانه داده رسمی را به JSON استاندارد تبدیل کند و این صفحه آن را مصرف کند.</p>
+      <div class="updateGrid">
+        <div class="glass" style="padding:15px">
+          <h3>ورود/چسباندن JSON</h3>
+          <textarea id="jsonInput" placeholder='[{"bank":"بانک نمونه","category":"loans",...}]'></textarea>
+          <button class="btn primary" onclick="importJSONText()">جایگزینی داده‌ها با JSON</button>
+        </div>
+        <div class="glass" style="padding:15px">
+          <h3>بارگذاری فایل</h3>
+          <input id="fileInput" type="file" accept=".json,.csv" />
+          <br><br><button class="btn primary" onclick="importFile()">خواندن فایل</button>
+          <button class="btn" onclick="downloadTemplate()">دانلود قالب CSV</button>
+        </div>
+        <div class="glass" style="padding:15px">
+          <h3>دریافت از URL</h3>
+          <input id="remoteUrl" placeholder="https://example.com/iran-banking-products.json" />
+          <br><br><button class="btn primary" onclick="fetchRemote()">دریافت و اعمال</button>
+        </div>
+        <div class="glass" style="padding:15px">
+          <h3>برنامه به‌روزرسانی ماهانه</h3>
+          <div class="notice">در حالت تک‌فایلی، یادآور ماهانه و واکشی هنگام باز کردن صفحه فعال است. برای اتوماسیون واقعی، خروجی JSON را با Cron/GitHub Actions تولید کنید.</div>
+          <br><button class="btn" onclick="setMonthlyReminder()">فعال‌سازی یادآور ماهانه</button>
+          <button class="btn" onclick="markUpdatedNow()">ثبت زمان آخرین کنترل</button>
+        </div>
+      </div>
+      <h3>منابع ثبت‌شده در داده فعلی</h3>
+      <div class="sourceList" id="sourceList"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+<script>
+const today = new Date('2026-09-15T00:00:00+03:30');
+const cats = {
+  deposits:{title:'منابعی و سپرده', icon:'💰', accent:'rgba(35,213,171,.20)'},
+  credit:{title:'اعتباری و کارت', icon:'💳', accent:'rgba(106,124,255,.22)'},
+  loans:{title:'تسهیلاتی و وام', icon:'🏦', accent:'rgba(255,204,102,.20)'},
+  loyalty:{title:'امتیازی و باشگاه', icon:'⭐', accent:'rgba(255,107,122,.18)'}
+};
+let activeCat='deposits';
+let quick='all';
+const seedProducts = [
+ {id:'mellat-qarzol',bank:'بانک ملت',product:'طرح حامی/امتیازی تسهیلات خرد',category:'loans',benefit:78,rate:23,minAmount:'بر اساس میانگین حساب',maxAmount:'تا سقف اعلامی شعبه/بخشنامه',term:'۱۲ تا ۶۰ ماه',speed:65,digital:72,friction:55,collateral:'اعتبارسنجی + ضامن/وثایق حسب پرونده',audience:'مشتریان دارای گردش حساب',desc:'تسهیلات خرد مبتنی بر میانگین حساب و رتبه اعتباری؛ مناسب مشتریانی که جریان ورودی پایدار دارند.',tags:['میانگین حساب','خرد','اعتبارسنجی'],source:'https://bankmellat.ir',lastUpdated:'2026-08-20'},
+ {id:'mellat-club',bank:'بانک ملت',product:'باشگاه مشتریان ملت',category:'loyalty',benefit:70,rate:0,minAmount:'عضویت رایگان',maxAmount:'امتیاز و قرعه‌کشی/پاداش',term:'دوره‌ای',speed:82,digital:90,friction:85,collateral:'ندارد',audience:'عموم مشتریان دیجیتال',desc:'امتیازدهی بر اساس تراکنش و تعامل؛ جذاب برای کاربرانی که خدمات غیرحضوری زیاد دارند.',tags:['امتیاز','دیجیتال','پاداش'],source:'https://club.bankmellat.ir',lastUpdated:'2026-09-01'},
+ {id:'meli-mehr',bank:'بانک ملی ایران',product:'قرض‌الحسنه/طرح مهربانی ملی',category:'loans',benefit:82,rate:4,minAmount:'افتتاح/میانگین حساب',maxAmount:'بر اساس ضوابط طرح',term:'تا چند سال طبق طرح',speed:62,digital:68,friction:60,collateral:'ضامن/اعتبارسنجی',audience:'خانوارها و مشتریان حقوق‌بگیری',desc:'طرح قرض‌الحسنه با کارمزد پایین و امتیاز میانگین حساب؛ جذابیت اصلی، هزینه مالی پایین‌تر است.',tags:['قرض‌الحسنه','کارمزد پایین','میانگین'],source:'https://bmi.ir',lastUpdated:'2026-08-28'},
+ {id:'meli-sadad',bank:'بانک ملی ایران',product:'بام و نشان/خدمات دیجیتال امتیازی',category:'loyalty',benefit:66,rate:0,minAmount:'عضویت دیجیتال',maxAmount:'مزایای کمپینی',term:'دوره‌ای',speed:88,digital:94,friction:88,collateral:'ندارد',audience:'کاربران بام و پرداخت دیجیتال',desc:'محوریت روی خدمات دیجیتال، کمپین‌ها و تجربه یکپارچه؛ ارزش وابسته به کمپین‌های جاری است.',tags:['بام','دیجیتال','کمپین'],source:'https://bmi.ir',lastUpdated:'2026-08-15'},
+ {id:'saman-card',bank:'بانک سامان',product:'اعتبار/کارت اعتباری مشتریان',category:'credit',benefit:76,rate:23,minAmount:'بر اساس رتبه اعتباری',maxAmount:'سقف اعتباری مصوب',term:'دوره بازپرداخت کارت',speed:74,digital:86,friction:66,collateral:'اعتبارسنجی و تضامین حسب سقف',audience:'مشتریان خوش‌حساب و حقوق‌بگیر',desc:'کارت اعتباری با تمرکز بر تجربه دیجیتال و پرداخت؛ مناسب خریدهای دوره‌ای و مدیریت نقدینگی کوتاه‌مدت.',tags:['کارت اعتباری','اعتبارسنجی','دیجیتال'],source:'https://sb24.ir',lastUpdated:'2026-07-30'},
+ {id:'saman-dep',bank:'بانک سامان',product:'سپرده سرمایه‌گذاری مدت‌دار',category:'deposits',benefit:69,rate:20.5,minAmount:'طبق بخشنامه سپرده',maxAmount:'بدون سقف عملیاتی',term:'۳ تا ۱۲ ماه و بیشتر',speed:80,digital:82,friction:84,collateral:'ندارد',audience:'سرمایه‌گذاران کم‌ریسک',desc:'سپرده مدت‌دار با ریسک پایین و امکان مدیریت در کانال‌های دیجیتال؛ جذابیت تابع نرخ مصوب و شرایط شکست است.',tags:['سپرده','کم‌ریسک','مدت‌دار'],source:'https://sb24.ir',lastUpdated:'2026-08-05'},
+ {id:'pasargad-ava',bank:'بانک پاسارگاد',product:'سپرده/طرح‌های سرمایه‌گذاری',category:'deposits',benefit:72,rate:20.5,minAmount:'طبق نوع سپرده',maxAmount:'بدون سقف عملیاتی',term:'کوتاه‌مدت تا بلندمدت',speed:79,digital:88,friction:82,collateral:'ندارد',audience:'مشتریان سرمایه‌گذار و دیجیتال',desc:'سبد سپرده‌ای با دسترسی غیرحضوری و پشتوانه خدمات دیجیتال؛ مناسب مقایسه نرخ مؤثر و جریمه شکست.',tags:['سپرده','دیجیتال','نرخ مؤثر'],source:'https://bpi.ir',lastUpdated:'2026-09-03'},
+ {id:'pasargad-credit',bank:'بانک پاسارگاد',product:'تسهیلات بر مبنای اعتبار مشتری',category:'credit',benefit:73,rate:23,minAmount:'گردش/رتبه اعتباری',maxAmount:'سقف مصوب',term:'کوتاه تا میان‌مدت',speed:70,digital:80,friction:62,collateral:'اعتبارسنجی + تضامین',audience:'مشتریان با سابقه بانکی',desc:'خط اعتباری/تسهیلات با اتکا به رفتار حساب؛ مناسب مشتریان دارای تراکنش مستمر.',tags:['اعتبار','رتبه اعتباری','تسهیلات'],source:'https://bpi.ir',lastUpdated:'2026-08-22'},
+ {id:'ayandeh-kilid',bank:'بانک آینده',product:'باشگاه/امتیاز مشتریان',category:'loyalty',benefit:62,rate:0,minAmount:'عضویت',maxAmount:'پاداش کمپینی',term:'کمپینی',speed:75,digital:78,friction:80,collateral:'ندارد',audience:'مشتریان فعال',desc:'ارزش محصول وابسته به کمپین‌ها و پذیرندگان طرف قرارداد است؛ برای مشتری پرتراکنش جذاب‌تر می‌شود.',tags:['باشگاه','کمپین','پاداش'],source:'https://ba24.ir',lastUpdated:'2026-06-25'},
+ {id:'tejarat-novin',bank:'بانک تجارت',product:'سپرده‌های ویژه و گواهی/مدت‌دار',category:'deposits',benefit:71,rate:20.5,minAmount:'طبق بخشنامه',maxAmount:'بدون سقف عملیاتی',term:'مدت‌دار',speed:72,digital:76,friction:82,collateral:'ندارد',audience:'مشتریان ریسک‌گریز',desc:'سپرده کم‌ریسک با مزیت نقدشوندگی نسبی؛ باید نرخ شکست و شرایط برداشت بررسی شود.',tags:['سپرده','گواهی','ریسک پایین'],source:'https://tejaratbank.ir',lastUpdated:'2026-08-10'},
+ {id:'tejarat-loan',bank:'بانک تجارت',product:'تسهیلات مرابحه/خرد مشتریان',category:'loans',benefit:69,rate:23,minAmount:'اعتبارسنجی و پرونده',maxAmount:'طبق سقف مصوب',term:'۱۲ تا ۶۰ ماه',speed:60,digital:64,friction:50,collateral:'ضامن/وثیقه طبق اعتبارسنجی',audience:'خانوار و کارکنان',desc:'وام خرد عمومی با شرایط وابسته به رتبه اعتباری، ضامن و بخشنامه شعبه.',tags:['مرابحه','خرد','ضامن'],source:'https://tejaratbank.ir',lastUpdated:'2026-07-18'},
+ {id:'saderat-tarh67',bank:'بانک صادرات ایران',product:'طرح‌های تسهیلاتی مبتنی بر سپرده',category:'loans',benefit:74,rate:23,minAmount:'میانگین حساب/سپرده',maxAmount:'بر اساس امتیاز',term:'متغیر',speed:58,digital:61,friction:54,collateral:'سپرده/ضامن حسب طرح',audience:'مشتریان دارای سپرده',desc:'مناسب کسانی که امکان خواب سپرده یا میانگین‌سازی دارند؛ هزینه فرصت سپرده باید در مقایسه لحاظ شود.',tags:['سپرده‌محور','تسهیلات','امتیاز'],source:'https://bsi.ir',lastUpdated:'2026-08-08'},
+ {id:'saderat-dep',bank:'بانک صادرات ایران',product:'سپرده سرمایه‌گذاری کوتاه‌مدت/بلندمدت',category:'deposits',benefit:68,rate:20.5,minAmount:'طبق نوع حساب',maxAmount:'بدون سقف عملیاتی',term:'کوتاه‌مدت تا سالانه',speed:70,digital:72,friction:84,collateral:'ندارد',audience:'عموم مشتریان',desc:'محصول پایه منابعی با جذابیت وابسته به نرخ مصوب، دسترسی شعب و خدمات همراه بانک.',tags:['سپرده','منابعی','کم‌ریسک'],source:'https://bsi.ir',lastUpdated:'2026-08-08'},
+ {id:'parsian-credit',bank:'بانک پارسیان',product:'کارت اعتباری/تسهیلات خرید',category:'credit',benefit:72,rate:23,minAmount:'رتبه اعتباری',maxAmount:'سقف مصوب کارت',term:'اقساطی/دوره‌ای',speed:68,digital:75,friction:58,collateral:'تضمین حسب سقف',audience:'خریداران اقساطی',desc:'ابزار اعتباری برای خرید و مدیریت نقدینگی؛ جذابیت به شبکه پذیرندگان و هزینه مؤثر بستگی دارد.',tags:['خرید اقساطی','کارت','اعتبار'],source:'https://parsian-bank.ir',lastUpdated:'2026-07-25'},
+ {id:'sepah-omid',bank:'بانک سپه',product:'تسهیلات خرد و طرح‌های حمایتی',category:'loans',benefit:68,rate:23,minAmount:'پرونده و اعتبارسنجی',maxAmount:'طبق بخشنامه',term:'متغیر',speed:55,digital:58,friction:48,collateral:'ضامن/وثیقه',audience:'عموم و کارکنان سازمانی',desc:'پوشش گسترده شعب مزیت اصلی است؛ تجربه دیجیتال و سرعت به شعبه/پرونده وابسته است.',tags:['خرد','شعبه گسترده','حمایتی'],source:'https://banksepah.ir',lastUpdated:'2026-07-12'},
+ {id:'resalat-loan',bank:'بانک قرض‌الحسنه رسالت',product:'وام قرض‌الحسنه امتیازی',category:'loans',benefit:88,rate:4,minAmount:'میانگین حساب و اعتبارسنجی',maxAmount:'بر اساس امتیاز و ضوابط',term:'تا سقف دوره طرح',speed:76,digital:90,friction:70,collateral:'اعتبارسنجی/سفته الکترونیک حسب ضوابط',audience:'متقاضیان وام کم‌هزینه',desc:'به دلیل کارمزد پایین و فرایند دیجیتال، برای مشتریانی که زمان امتیازسازی دارند بسیار جذاب است.',tags:['قرض‌الحسنه','دیجیتال','کارمزد کم'],source:'https://rqbank.ir',lastUpdated:'2026-09-06'},
+ {id:'mehr-loan',bank:'بانک قرض‌الحسنه مهر ایران',product:'وام قرض‌الحسنه مبتنی بر معدل حساب',category:'loans',benefit:87,rate:4,minAmount:'معدل حساب',maxAmount:'طبق ضوابط و امتیاز',term:'متغیر',speed:72,digital:82,friction:68,collateral:'اعتبارسنجی/ضامن حسب پرونده',audience:'خانوار و کسب‌وکار خرد',desc:'یکی از گزینه‌های جذاب وام کم‌هزینه؛ مزیت اصلی هزینه مالی کم و مدل امتیازی شفاف‌تر است.',tags:['قرض‌الحسنه','معدل حساب','کم‌هزینه'],source:'https://qmb.ir',lastUpdated:'2026-09-02'},
+ {id:'eghtesadnovin-dep',bank:'بانک اقتصاد نوین',product:'سپرده و خدمات سرمایه‌گذاری',category:'deposits',benefit:70,rate:20.5,minAmount:'طبق نوع سپرده',maxAmount:'بدون سقف عملیاتی',term:'کوتاه تا بلندمدت',speed:77,digital:80,friction:84,collateral:'ندارد',audience:'مشتریان شهری و دیجیتال',desc:'سپرده‌های متعارف با تجربه دیجیتال قابل قبول؛ مقایسه باید روی نرخ شکست و خدمات جانبی انجام شود.',tags:['سپرده','دیجیتال','سرمایه‌گذاری'],source:'https://enbank.ir',lastUpdated:'2026-08-18'},
+ {id:'karafarin-credit',bank:'بانک کارآفرین',product:'اعتبار تجاری/تسهیلات مشتریان خاص',category:'credit',benefit:75,rate:23,minAmount:'پرونده اعتباری',maxAmount:'بر اساس اعتبار مشتری',term:'کوتاه/میان‌مدت',speed:63,digital:68,friction:50,collateral:'وثایق تجاری',audience:'کسب‌وکارها و مشتریان ممتاز',desc:'برای کسب‌وکارهای دارای گردش مناسب جذاب است؛ اصطکاک اخذ تسهیلات نسبتاً بالاتر از محصولات خرد دیجیتال است.',tags:['کسب‌وکار','اعتبار تجاری','وثیقه'],source:'https://karafarinbank.ir',lastUpdated:'2026-08-01'},
+ {id:'blu-credit',bank:'بلوبانک/سامان',product:'اعتبار خرد دیجیتال',category:'credit',benefit:74,rate:23,minAmount:'اعتبارسنجی دیجیتال',maxAmount:'سقف خرد',term:'کوتاه‌مدت/اقساطی',speed:90,digital:98,friction:76,collateral:'عمدتاً اعتبارسنجی/تضمین دیجیتال',audience:'کاربران موبایل‌محور',desc:'جذابیت بالا از نظر سرعت و تجربه کاربری؛ سقف و شرایط اعتبار باید در هر دوره کنترل شود.',tags:['نئوبانک','دیجیتال','اعتبار خرد'],source:'https://blubank.com',lastUpdated:'2026-09-05'}
+];
+let products = JSON.parse(localStorage.getItem('bankRadarProducts')||'null') || seedProducts;
+let compareSet = new Set(JSON.parse(localStorage.getItem('bankRadarCompare')||'[]'));
+function fa(n){return String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d])}
+function daysOld(d){return Math.max(0, Math.round((today-new Date(d+'T00:00:00'))/86400000))}
+function freshClass(p){let x=daysOld(p.lastUpdated);return x<=30?'good':x<=75?'warn':'bad'}
+function score(p){
+  const wb=+wBenefit.value, wd=+wDigital.value, ws=+wSpeed.value, wf=+wFriction.value, wfr=+wFresh.value;
+  const freshness=Math.max(0,100-daysOld(p.lastUpdated)*1.45);
+  const raw=(p.benefit*wb + p.digital*wd + p.speed*ws + p.friction*wf + freshness*wfr)/(wb+wd+ws+wf+wfr||1);
+  return Math.round(Math.max(0,Math.min(100,raw)));
+}
+function normCat(v){const m={'منابعی':'deposits','سپرده':'deposits','اعتباری':'credit','تسهیلاتی':'loans','وام':'loans','امتیازی':'loyalty','باشگاه':'loyalty'};return m[v]||v}
+function syncWeights(){['wBenefit','wDigital','wSpeed','wFriction','wFresh'].forEach(id=>document.getElementById(id+'V').textContent=fa(document.getElementById(id).value))}
+function init(){
+  syncWeights(); renderTabs(); populateBanks(); checkMonthly(); render();
+}
+function renderTabs(){tabs.innerHTML=Object.entries(cats).map(([k,c])=>`<button class="tab ${k===activeCat?'active':''}" onclick="activeCat='${k}';quick='all';document.getElementById('quick').value='all';renderTabs();render()">${c.icon}<br>${c.title}</button>`).join('')}
+function populateBanks(){const banks=[...new Set(products.map(p=>p.bank))].sort();bankFilter.innerHTML='<option value="all">همه بانک‌ها</option>'+banks.map(b=>`<option>${b}</option>`).join('')}
+function getFiltered(){
+  const qv=q.value.trim().toLowerCase(), bf=bankFilter.value, sf=+scoreFilter.value, df=digitalFilter.value;
+  let arr=products.filter(p=>p.category===activeCat);
+  if(qv) arr=arr.filter(p=>(p.bank+p.product+p.desc+(p.tags||[]).join(' ')).toLowerCase().includes(qv));
+  if(bf!=='all') arr=arr.filter(p=>p.bank===bf);
+  if(sf) arr=arr.filter(p=>score(p)>=sf);
+  if(df==='yes') arr=arr.filter(p=>p.digital>=75); if(df==='no') arr=arr.filter(p=>p.digital<75);
+  if(quick==='noCollateral') arr=arr.filter(p=>p.friction>=65 || /ندارد|اعتبارسنجی/.test(p.collateral));
+  if(quick==='digital') arr=arr.filter(p=>p.digital>=85);
+  if(quick==='fresh') arr=arr.filter(p=>daysOld(p.lastUpdated)<=30);
+  if(quick==='highValue') arr=arr.filter(p=>p.benefit>=78);
+  const sort=sortBy.value;
+  arr.sort((a,b)=> sort==='fresh'? daysOld(a.lastUpdated)-daysOld(b.lastUpdated) : sort==='rate'? (b.rate||0)-(a.rate||0) : sort==='speed'? b.speed-a.speed : score(b)-score(a));
+  return arr;
+}
+function render(){
+  populateBanks();
+  const arr=getFiltered(); const c=cats[activeCat];
+  cards.innerHTML = arr.length? arr.map(p=>cardHTML(p,c)).join('') : '<div class="empty glass" style="grid-column:1/-1">محصولی با این فیلترها پیدا نشد.</div>';
+  renderStats(); renderRank(arr); renderCompare(); renderSources();
+}
+function cardHTML(p,c){const s=score(p), old=daysOld(p.lastUpdated), checked=compareSet.has(p.id);return `<article class="card" style="--accent:${c.accent}">
+  <div class="cardTop"><div class="bank"><div class="logo">${p.bank.replace('بانک ','').slice(0,2)}</div><div><h3 class="productName">${p.product}</h3><div class="bankName">${p.bank} · ${c.title}</div></div></div><div class="score"><b>${fa(s)}</b><span>جذابیت</span></div></div>
+  <div class="meta"><div class="mini"><span>نرخ/مزیت</span><b>${fa(p.rate)}٪ / ${fa(p.benefit)}</b></div><div class="mini"><span>سقف/دامنه</span><b>${p.maxAmount}</b></div><div class="mini"><span>مدت</span><b>${p.term}</b></div></div>
+  <p class="desc">${p.desc}</p><div class="tags">${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  <div class="fresh ${freshClass(p)}">آخرین کنترل: ${fa(p.lastUpdated)} · ${fa(old)} روز قبل · منبع: <a href="${p.source}" target="_blank">لینک رسمی/مرجع</a></div>
+  <div class="cardActions"><button class="btn small ${checked?'primary':''}" onclick="toggleCompare('${p.id}')">${checked?'حذف از مقایسه':'افزودن به مقایسه'}</button><button class="btn small" onclick="detail('${p.id}')">جزئیات</button></div>
+</article>`}
+function renderStats(){
+  totalProducts.textContent=fa(products.length); totalBanks.textContent=fa(new Set(products.map(p=>p.bank)).size);
+  freshProducts.textContent=fa(products.filter(p=>daysOld(p.lastUpdated)<=30).length);
+  avgScore.textContent=fa(Math.round(products.reduce((a,p)=>a+score(p),0)/(products.length||1)));
+  const stale=products.filter(p=>daysOld(p.lastUpdated)>60).length; healthBadge.textContent=stale? `${fa(stale)} رکورد نیازمند کنترل`:'داده‌ها سالم';
+  healthBadge.style.borderColor=stale?'rgba(255,204,102,.45)':'rgba(35,213,171,.45)';
+  ticker.innerHTML=Object.entries(cats).map(([k,c])=>`<span class="chip">${c.icon} ${c.title}: ${fa(products.filter(p=>p.category===k).length)} محصول</span>`).join('');
+}
+function renderRank(arr){const top=[...arr].slice(0,7);rankBox.innerHTML=`<div class="sectionTitle"><h3>رنکینگ جذابیت در دسته «${cats[activeCat].title}»</h3><span class="chip">از دید مشتری</span></div>`+(top.length?top.map((p,i)=>`<div class="rankRow"><b>${fa(i+1)}</b><div><div style="display:flex;justify-content:space-between"><span>${p.bank} - ${p.product}</span><span>${fa(score(p))}</span></div><div class="bar"><i style="width:${score(p)}%"></i></div></div><button class="btn small" onclick="toggleCompare('${p.id}')">مقایسه</button></div>`).join(''):'<div class="empty">داده‌ای برای رتبه‌بندی نیست.</div>')}
+function renderCompare(){const arr=products.filter(p=>compareSet.has(p.id));compareBox.innerHTML=`<div class="sectionTitle"><h3>جدول مقایسه انتخابی</h3><button class="btn small danger" onclick="compareSet.clear();saveCompare();render()">پاک کردن</button></div>`+(arr.length?`<table class="compareTable"><thead><tr><th>بانک/محصول</th><th>دسته</th><th>جذابیت</th><th>نرخ</th><th>حداقل</th><th>سقف</th><th>مدت</th><th>وثیقه/ضامن</th><th>دیجیتال</th><th>تازگی</th></tr></thead><tbody>${arr.map(p=>`<tr><td><b>${p.bank}</b><br>${p.product}</td><td>${cats[p.category].title}</td><td>${fa(score(p))}</td><td>${fa(p.rate)}٪</td><td>${p.minAmount}</td><td>${p.maxAmount}</td><td>${p.term}</td><td>${p.collateral}</td><td>${fa(p.digital)}</td><td>${fa(daysOld(p.lastUpdated))} روز</td></tr>`).join('')}</tbody></table>`:'<div class="empty">برای مقایسه، از کارت محصولات گزینه «افزودن به مقایسه» را بزنید.</div>')}
+function renderSources(){if(!sourceList)return;sourceList.innerHTML=products.slice(0,50).map(p=>`<div class="sourceItem"><span>${p.bank} · ${p.product}</span><a target="_blank" href="${p.source}">منبع</a><span class="fresh ${freshClass(p)}">${fa(daysOld(p.lastUpdated))} روز</span></div>`).join('')}
+function toggleCompare(id){compareSet.has(id)?compareSet.delete(id):compareSet.add(id);saveCompare();render()}
+function saveCompare(){localStorage.setItem('bankRadarCompare',JSON.stringify([...compareSet]))}
+function saveData(){localStorage.setItem('bankRadarProducts',JSON.stringify(products));populateBanks();render();}
+function quickFilter(){quick=document.getElementById('quick').value;render()}
+function scrollCompare(){compareBox.scrollIntoView({behavior:'smooth'})}
+function detail(id){const p=products.find(x=>x.id===id); alert(`${p.bank}\n${p.product}\n\nمخاطب: ${p.audience}\nوثیقه/شرایط: ${p.collateral}\nحداقل: ${p.minAmount}\nسقف: ${p.maxAmount}\n\nتوضیح: ${p.desc}\n\nمنبع: ${p.source}`)}
+function openUpdate(){updateModal.classList.add('show');renderSources()} function closeUpdate(){updateModal.classList.remove('show')}
+function toastMsg(t){toast.textContent=t;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),3200)}
+function validateRows(rows){return rows.map((r,i)=>({id:r.id||('row-'+Date.now()+'-'+i),bank:r.bank||'نامشخص',product:r.product||r.name||'محصول بدون نام',category:normCat(r.category||'loans'),benefit:+(r.benefit||60),rate:+(r.rate||0),minAmount:r.minAmount||'',maxAmount:r.maxAmount||'',term:r.term||'',speed:+(r.speed||60),digital:+(r.digital||50),friction:+(r.friction||50),collateral:r.collateral||'',audience:r.audience||'',desc:r.desc||'',tags:Array.isArray(r.tags)?r.tags:String(r.tags||'').split('|').filter(Boolean),source:r.source||'#',lastUpdated:r.lastUpdated||new Date().toISOString().slice(0,10)}))}
+function importJSONText(){try{const rows=JSON.parse(jsonInput.value);products=validateRows(Array.isArray(rows)?rows:rows.products);saveData();toastMsg('داده‌ها با JSON جایگزین شد.')}catch(e){alert('JSON نامعتبر است: '+e.message)}}
+function parseCSV(text){const lines=text.trim().split(/\r?\n/);const headers=lines.shift().split(',').map(h=>h.trim());return lines.map(line=>{const vals=line.match(/("[^"]*"|[^,])+/g)||[];let o={};headers.forEach((h,i)=>o[h]=(vals[i]||'').replace(/^"|"$/g,''));return o})}
+function importFile(){const f=fileInput.files[0]; if(!f) return alert('ابتدا فایل را انتخاب کنید.'); const reader=new FileReader(); reader.onload=()=>{try{const text=reader.result; const rows=f.name.endsWith('.csv')?parseCSV(text):(JSON.parse(text).products||JSON.parse(text)); products=validateRows(rows); saveData(); toastMsg('فایل با موفقیت خوانده شد.')}catch(e){alert('خطا در خواندن فایل: '+e.message)}}; reader.readAsText(f,'utf-8')}
+async function fetchRemote(){try{const res=await fetch(remoteUrl.value,{cache:'no-store'}); if(!res.ok) throw new Error(res.status); const data=await res.json(); products=validateRows(data.products||data); saveData(); localStorage.setItem('bankRadarLastRemoteUpdate',new Date().toISOString()); toastMsg('داده از URL دریافت شد.')}catch(e){alert('دریافت ناموفق بود. احتمالاً CORS یا آدرس مشکل دارد: '+e.message)}}
+function download(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function downloadJSON(){download('iran-banking-products.json',JSON.stringify(products,null,2),'application/json')}
+function downloadCSV(){const h=['id','bank','product','category','benefit','rate','minAmount','maxAmount','term','speed','digital','friction','collateral','audience','desc','tags','source','lastUpdated'];const rows=[h.join(',')].concat(products.map(p=>h.map(k=>'"'+String(k==='tags'?(p.tags||[]).join('|'):p[k]||'').replace(/"/g,'""')+'"').join(',')));download('iran-banking-products.csv',rows.join('\n'),'text/csv;charset=utf-8')}
+function downloadTemplate(){const h='id,bank,product,category,benefit,rate,minAmount,maxAmount,term,speed,digital,friction,collateral,audience,desc,tags,source,lastUpdated\n';download('bank-products-template.csv',h+'sample-1,بانک نمونه,نام محصول,loans,75,23,حداقل,سقف,۱۲ ماه,70,80,60,ضامن,عموم,توضیح,برچسب۱|برچسب۲,https://bank.ir,2026-09-15','text/csv;charset=utf-8')}
+function resetData(){if(confirm('داده‌های فعلی حذف و داده نمونه بازگردانی شود؟')){products=seedProducts;localStorage.removeItem('bankRadarProducts');compareSet.clear();saveCompare();render();toastMsg('داده نمونه بازگردانی شد.')}}
+function setMonthlyReminder(){localStorage.setItem('bankRadarMonthlyReminder','on');localStorage.setItem('bankRadarLastCheck',new Date().toISOString());toastMsg('یادآور ماهانه فعال شد.')} function markUpdatedNow(){localStorage.setItem('bankRadarLastCheck',new Date().toISOString());toastMsg('زمان آخرین کنترل ثبت شد.')}
+function checkMonthly(){if(localStorage.getItem('bankRadarMonthlyReminder')==='on'){const last=new Date(localStorage.getItem('bankRadarLastCheck')||0);if((new Date()-last)/86400000>30)setTimeout(()=>openUpdate(),800)}}
+function showMethod(){alert('روش امتیازدهی: جذابیت مالی، سهولت دیجیتال، سرعت دسترسی، اصطکاک وثیقه/ریسک و تازگی داده با وزن‌های قابل تنظیم ترکیب می‌شوند. برای محصولات وام، نرخ پایین‌تر در benefit باید توسط گردآورنده داده لحاظ شود؛ برای سپرده، benefit می‌تواند بازده مؤثر پس از شکست و مالیات/هزینه فرصت باشد. امتیاز نهایی ۰ تا ۱۰۰ است و برای رتبه‌بندی مشتری‌محور استفاده می‌شود.')} 
+window.onclick=e=>{if(e.target===updateModal)closeUpdate()};
+init();
+</script>
+</body>
+</html>
