@@ -76,6 +76,17 @@ export function parseTomanAmount(text) {
   const t = normalizeText(text).replace(/,/g, '');
   const m = t.match(/(\d+(?:\.\d+)?)\s*(تریلیون|میلیارد|میلیون|هزار)?/);
   if (!m) return null;
+
+  // «۵۰٪ قیمت خودرو» یعنی سقف نسبی، نه ۵۰ تومان.
+  //
+  // این تمایز حیاتی است: بعضی بانک‌ها سقف وام را کسر از قیمت کالا تعریف
+  // می‌کنند («معادل ۵۰ درصد قیمت خودرو»). اگر عدد را مبلغ فرض کنیم، سقفی
+  // تولید می‌شود که هزار مرتبه کوچک‌تر از واقعیت است و رابط دچار تناقض
+  // می‌شود (حداقل مبلغ از سقف بیشتر درمی‌آید). در چنین حالتی سقف عددی
+  // نداریم؛ متن توضیحی جداگانه نگه داشته می‌شود.
+  const after = t.slice(m.index + m[0].length);
+  if (/^\s*(٪|%|درصد|در\s*صد)/.test(after)) return null;
+
   let value = Number.parseFloat(m[1]);
   if (!Number.isFinite(value)) return null;
   const unit = m[2];

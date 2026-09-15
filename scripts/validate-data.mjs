@@ -68,9 +68,34 @@ function checkProduct(p, index) {
     warn(`${at}: حداقل مبلغ از سقف بیشتر است`);
   }
 
+  // دو تاریخ مستقل باید مستقل سنجیده شوند:
+  //   lastSeen   — آخرین باری که خط لوله این رکورد را دید و بازبینی کرد
+  //   lastUpdated — آخرین باری که خود منبع (صفحه بانک) به‌روز شد
+  // اگر این دو یکی گرفته شوند، رکوردی که امروز واکشی شده ولی صفحه‌اش ماه‌ها
+  // دست‌نخورده مانده، «کنترل‌نشده» گزارش می‌شود و هشدار بی‌معنا می‌شود.
+  if (p.lastSeen || p.lastUpdated) {
+    const checkedAge = daysSince(p.lastSeen || p.lastUpdated);
+    if (checkedAge > 14) {
+      warn(`${at}: ${checkedAge} روز از آخرین بازبینی خط لوله گذشته است`);
+    }
+  }
+
   if (p.lastUpdated) {
-    const age = daysSince(p.lastUpdated);
-    if (age > 120) warn(`${at}: ${age} روز از آخرین کنترل گذشته است`);
+    const sourceAge = daysSince(p.lastUpdated);
+    // کهنگی خود منبع ایراد این سامانه نیست؛ ولی باید دیده شود چون یعنی
+    // ممکن است بانک نرخ را تغییر داده و صفحه به‌روز نشده باشد.
+    if (sourceAge > 365) {
+      warn(`${at}: صفحه منبع ${sourceAge} روز است به‌روز نشده (خودِ منبع کهنه است)`);
+    }
+  }
+
+  if (
+    p.lastSeen && p.lastUpdated &&
+    Number.isFinite(Date.parse(p.lastUpdated)) &&
+    Number.isFinite(Date.parse(p.lastSeen)) &&
+    Date.parse(p.lastUpdated) > Date.parse(p.lastSeen)
+  ) {
+    err(`${at}: تاریخ به‌روزرسانی منبع از تاریخ بازبینی جلوتر است`);
   }
 
   if (p.autoDiscovered === true && p.confidence !== 'low' && p.confidence !== 'medium') {

@@ -80,3 +80,28 @@ test('شناسه‌سازی نام بانک‌ها', () => {
   assert.equal(slugify('بلوبانک'), 'blubank');
   assert.equal(slugify('بانک ناشناخته نمونه'), 'بانک-ناشناخته-نمونه');
 });
+
+/* ---------- سقف نسبی نباید مبلغ شمرده شود ----------
+ *
+ * بعضی بانک‌ها سقف وام را کسر از قیمت کالا تعریف می‌کنند: «معادل ۵۰ درصد
+ * قیمت خودرو». اگر عدد ۵۰ را مبلغ فرض کنیم، سقفی هزار مرتبه کوچک‌تر از
+ * واقعیت می‌سازیم و رابط دچار تناقض می‌شود (حداقل مبلغ از سقف بیشتر
+ * درمی‌آید). این آزمون جلوی بازگشت آن اشکال را می‌گیرد.
+ */
+
+test('درصد به‌عنوان سقف، مبلغ شمرده نمی‌شود', () => {
+  assert.equal(parseTomanAmount('50 ٪'), null, '«۵۰٪» مبلغ نیست');
+  assert.equal(parseTomanAmount('50%'), null);
+  assert.equal(parseTomanAmount('۵۰ درصد قیمت خودرو'), null, 'ارقام فارسی هم باید پوشش داده شود');
+  assert.equal(parseTomanAmount('تا 100 درصد'), null);
+  assert.equal(parseTomanAmount('معادل 50 درصد ارزش ملک'), null);
+});
+
+test('مبالغ واقعی همچنان درست خوانده می‌شوند', () => {
+  assert.equal(parseTomanAmount('100 میلیون تومان'), 100_000_000);
+  assert.equal(parseTomanAmount('۱ میلیارد تومان'), 1_000_000_000);
+  assert.equal(parseTomanAmount('500,000,000 ریال'), 500_000_000);
+  assert.equal(parseTomanAmount('50 میلیون تومان'), 50_000_000, 'عدد ۵۰ با واحد مبلغ باید بماند');
+  assert.equal(parseTomanAmount('نامشخص'), null);
+  assert.equal(parseTomanAmount(''), null);
+});
