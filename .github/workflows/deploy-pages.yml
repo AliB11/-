@@ -24,12 +24,12 @@ jobs:
 
     steps:
       - name: دریافت مخزن
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
 
       - name: راه‌اندازی Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -54,7 +54,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: بارگذاری بسته
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 
@@ -68,4 +68,4 @@ jobs:
     steps:
       - name: انتشار روی GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

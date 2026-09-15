@@ -6,9 +6,8 @@ on:
     - cron: '30 3 * * *'
     # هر پنجشنبه ساعت ۰۵:۰۰ UTC — بازبینی هفتگی جامع‌تر
     - cron: '0 5 * * 4'
-  # موقت: اجرای آزمایشی روی pull request برای سنجش سلامت منابع
-  pull_request:
-    types: [opened, synchronize]
+  # اجرای دستی. با این ماشه می‌توان خط لوله را روی هر شاخه‌ای آزمود:
+  #   gh workflow run refresh-data.yml --ref <branch> -f dry_run=true
   workflow_dispatch:
     inputs:
       limit:
@@ -39,18 +38,17 @@ jobs:
 
     steps:
       - name: دریافت مخزن
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
-          # روی pull_request، پیش‌فرض یک commit ادغام موقت است که push روی آن
-          # ممکن نیست؛ برای یکپارچگی با شاخه، صریحاً همان شاخه دریافت می‌شود.
-          ref: ${{ github.head_ref || github.ref_name }}
+          # تاریخچه کم است چون فقط برای commit و push داده لازم داریم.
           fetch-depth: 1
           persist-credentials: true
 
       - name: راه‌اندازی Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
+          cache: npm
 
       - name: گزارش وضعیت پیش از اجرا
         id: before
@@ -119,7 +117,7 @@ jobs:
 
       - name: بارگذاری گزارش تشخیصی
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: collect-report
           path: |
@@ -145,7 +143,7 @@ jobs:
       # در صورت شکست کامل، یک ایشو ثبت می‌شود تا سکوت داده‌ای رخ ندهد
       - name: اطلاع‌رسانی شکست
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const title = '⚠️ خط لوله به‌روزرسانی داده شکست خورد';
