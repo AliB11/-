@@ -1,0 +1,16 @@
+{
+  "autoDiscovered": 0,
+  "counts": {
+    "credit": 15,
+    "deposits": 17,
+    "loans": 17,
+    "loyalty": 10,
+    "total": 59
+  },
+  "lastRun": "2026-09-15T17:09:51.907Z",
+  "lastRunDurationMs": 63,
+  "lastRunMode": "offline",
+  "sources": [],
+  "stale": 0,
+  "version": 2
+}

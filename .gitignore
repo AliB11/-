@@ -1,0 +1,21 @@
+# وابستگی‌ها
+node_modules/
+package-lock.json
+
+# خروجی ساخت و انتشار
+dist/
+build/
+out/
+
+# فایل‌های موقت و سیستم
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+.cache/
+.env
+.env.local
+
+# ابزار ویرایشگر
+.vscode/
+.idea/

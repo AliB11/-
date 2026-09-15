@@ -1,0 +1,155 @@
+name: به‌روزرسانی خودکار داده
+
+on:
+  schedule:
+    # هر روز ساعت ۰۳:۳۰ UTC (۰۷:۰۰ به وقت تهران) — پیش از شروع روز کاری بانک‌ها
+    - cron: '30 3 * * *'
+    # هر پنجشنبه ساعت ۰۵:۰۰ UTC — بازبینی هفتگی جامع‌تر
+    - cron: '0 5 * * 4'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'حداکثر تعداد صفحات وام برای واکشی (پیش‌فرض: ۱۲۰)'
+        required: false
+        default: '120'
+        type: string
+      dry_run:
+        description: 'اجرای آزمایشی بدون نوشتن داده'
+        required: false
+        default: false
+        type: boolean
+
+# جلوگیری از اجرای هم‌زمان دو واکشی
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  collect:
+    name: واکشی و اعتبارسنجی
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: دریافت مخزن
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: راه‌اندازی Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: گزارش وضعیت پیش از اجرا
+        id: before
+        run: |
+          echo "count=$(node -e "console.log(require('./data/products.json').products.length)")" >> "$GITHUB_OUTPUT"
+          echo "hash=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      # مرحله واکشی: هر منبع مستقل شکست می‌خورد و کل اجرا متوقف نمی‌شود.
+      # پارامتر continue-on-error عامدانه تنظیم نشده؛ collect خودش خطاها را می‌گیرد
+      # و در صورت شکست کامل (مثلاً نبود داده پایه) با کد ۱ خارج می‌شود.
+      - name: واکشی داده از منابع
+        id: collect
+        env:
+          LIMIT: ${{ inputs.limit || '120' }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            node tools/collect.mjs --limit="$LIMIT" --dry-run --verbose
+          else
+            node tools/collect.mjs --limit="$LIMIT" --verbose
+          fi
+
+      - name: اعتبارسنجی داده
+        run: node scripts/validate-data.mjs
+
+      - name: اجرای آزمون‌ها
+        run: node --test "tests/*.test.mjs"
+
+      - name: بازسازی بسته داده
+        if: ${{ inputs.dry_run != true }}
+        run: node tools/build-bundle.mjs
+
+      - name: بررسی تغییرات
+        id: diff
+        run: |
+          if git diff --quiet -- data/; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "تغییری در داده‌ها ثبت نشد."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- data/
+          fi
+
+      - name: ثبت تغییرات داده
+        if: ${{ steps.diff.outputs.changed == 'true' && inputs.dry_run != true }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          AFTER=$(node -e "console.log(require('./data/products.json').products.length)")
+          BEFORE="${{ steps.before.outputs.count }}"
+          git commit -m "chore(data): به‌روزرسانی خودکار محصولات بانکی
+
+          محصولات: ${BEFORE} → ${AFTER}
+          اجرا: ${{ github.run_id }}"
+          git push
+
+      - name: خلاصه اجرا
+        if: always()
+        run: |
+          {
+            echo "### وضعیت خط لوله داده"
+            echo ""
+            echo "| مورد | مقدار |"
+            echo "| --- | --- |"
+            echo "| حالت اجرا | \`${{ inputs.dry_run == true && 'آزمایشی' || 'کامل' }}\` |"
+            echo "| محصولات پیش از اجرا | ${{ steps.before.outputs.count }} |"
+            echo "| تغییر در داده | ${{ steps.diff.outputs.changed == 'true' && 'بله' || 'خیر' }} |"
+            echo "| نتیجه | ${{ job.status }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # در صورت شکست کامل، یک ایشو ثبت می‌شود تا سکوت داده‌ای رخ ندهد
+      - name: اطلاع‌رسانی شکست
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '⚠️ خط لوله به‌روزرسانی داده شکست خورد';
+            const body = [
+              `اجرای [${context.runId}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) ناموفق بود.`,
+              '',
+              'تا رفع مشکل، سامانه با آخرین داده معتبر موجود کار می‌کند و داده‌ای حذف نشده است.',
+              '',
+              `کاربر فراخوان: \`${context.actor}\``,
+            ].join('\n');
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'data-pipeline',
+            });
+
+            if (existing.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['data-pipeline', 'automated'],
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body,
+              });
+            }

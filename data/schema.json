@@ -1,0 +1,216 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/AliB11/-/data/schema.json",
+  "title": "بانک‌رادار — طرح‌واره داده محصولات بانکی",
+  "description": "قرارداد داده برای فایل data/products.json. هر رکورد یک محصول بانکی/مالی واقعی با منبع قابل ردیابی است.",
+  "type": "object",
+  "required": [
+    "version",
+    "generatedAt",
+    "products"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "generatedAt": {
+      "type": "string",
+      "description": "ISO-8601 timestamp of generation"
+    },
+    "generator": {
+      "type": "string"
+    },
+    "counts": {
+      "type": "object"
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/product"
+      }
+    }
+  },
+  "definitions": {
+    "product": {
+      "type": "object",
+      "required": [
+        "id",
+        "bank",
+        "product",
+        "category",
+        "rate",
+        "lastUpdated",
+        "source"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "bank": {
+          "type": "string",
+          "minLength": 2
+        },
+        "bankId": {
+          "type": "string"
+        },
+        "product": {
+          "type": "string",
+          "minLength": 2
+        },
+        "category": {
+          "enum": [
+            "deposits",
+            "credit",
+            "loans",
+            "loyalty"
+          ]
+        },
+        "subcategory": {
+          "type": "string"
+        },
+        "rate": {
+          "type": "number",
+          "description": "نرخ/کارمزد سالانه به درصد. برای غیرنرخ‌دارها صفر.",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "rateLabel": {
+          "type": "string"
+        },
+        "rateKind": {
+          "enum": [
+            "profit",
+            "fee",
+            "yield",
+            "none"
+          ]
+        },
+        "benefit": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "minAmount": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "maxAmount": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "amountLabel": {
+          "type": "string"
+        },
+        "termMonths": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "termLabel": {
+          "type": "string"
+        },
+        "speed": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "digital": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "friction": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "collateral": {
+          "type": "string"
+        },
+        "collateralKind": {
+          "enum": [
+            "none",
+            "credit-score",
+            "guarantor",
+            "deposit-block",
+            "collateral",
+            "mixed"
+          ]
+        },
+        "audience": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "regulatory": {
+          "type": "boolean"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "title",
+            "url"
+          ],
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "regulator",
+                "bank",
+                "aggregator",
+                "press"
+              ]
+            },
+            "checked": {
+              "type": "string"
+            }
+          }
+        },
+        "sources": {
+          "type": "array"
+        },
+        "ceilingContingent": {
+          "type": "boolean",
+          "description": "سقف مبلغ قطعی نیست و به سپرده، امتیاز یا مصوبه اعتباری وابسته است؛ محاسبه قسط در این سقف فرضی است."
+        }
+      }
+    }
+  }
+}

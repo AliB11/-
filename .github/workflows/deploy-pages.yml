@@ -1,0 +1,75 @@
+name: انتشار روی GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    # پس از هر بار به‌روزرسانی موفق داده، سایت منتشر می‌شود
+    workflows: ['به‌روزرسانی خودکار داده']
+    types: [completed]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: آماده‌سازی بسته انتشار
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # اگر این اجرا ناشی از workflow_run است، فقط در صورت موفقیت ادامه بده
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: دریافت مخزن
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: راه‌اندازی Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: اعتبارسنجی داده پیش از انتشار
+        run: node scripts/validate-data.mjs
+
+      - name: بازسازی بسته داده
+        run: node tools/build-bundle.mjs
+
+      - name: آماده‌سازی پوشه انتشار
+        run: |
+          mkdir -p dist
+          cp index.html dist/
+          cp -r assets dist/
+          mkdir -p dist/data
+          cp data/products.json data/banks.json data/indicators.json data/meta.json data/bundle.js data/schema.json dist/data/
+          touch dist/.nojekyll
+          echo "محتوای بسته انتشار:"
+          find dist -type f | sort
+
+      - name: تنظیم GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: بارگذاری بسته
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: انتشار
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: انتشار روی GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
