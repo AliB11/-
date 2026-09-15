@@ -64,10 +64,20 @@ jobs:
           LIMIT: ${{ inputs.limit || '120' }}
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ inputs.dry_run }}" = "true" ]; then
-            node tools/collect.mjs --limit="$LIMIT" --dry-run --verbose
+            node tools/collect.mjs --limit="$LIMIT" --dry-run --verbose 2>&1 | tee collect.log
           else
-            node tools/collect.mjs --limit="$LIMIT" --verbose
+            node tools/collect.mjs --limit="$LIMIT" --verbose 2>&1 | tee collect.log
           fi
+
+          # خلاصه سلامت منابع در صفحه اجرا — تا خرابی یک منبع بدون خواندن
+          # کل لاگ دیده شود
+          {
+            echo "### سلامت منابع"
+            echo ""
+            echo '```'
+            grep -E "^\[(collect|verbose)\]" collect.log | head -60
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY" 
 
       - name: اعتبارسنجی داده
         run: node scripts/validate-data.mjs
