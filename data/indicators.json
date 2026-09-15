@@ -4,7 +4,7 @@
     "realDepositReturnAnnual": -46.9,
     "realDepositReturnCbi": -42
   },
-  "generatedAt": "2026-09-15T17:36:09.607Z",
+  "generatedAt": "2026-09-15T17:41:02.059Z",
   "generator": "tools/collect.mjs",
   "indicators": {
     "certificateRate": {
@@ -185,7 +185,7 @@
     }
   },
   "note": "شاخص‌های کلان و نرخ‌های مرجع نظام بانکی. مبنای محاسبه «نرخ واقعی» در سامانه.",
-  "period": "24 شهریور 1405",
+  "period": "مرداد ۱۴۰۵",
   "ranges": {
     "depositCaps": [
       {
