@@ -7,7 +7,7 @@
  * شکست‌ها در گزارش سلامت ثبت می‌شوند.
  */
 
-import { get, pool, runSource } from '../lib/http.mjs';
+import { get, pool, runSource, unwrapPool } from '../lib/http.mjs';
 import { normalizeText, stripTags, parseRates, parseAllAmounts } from '../lib/parse.mjs';
 
 /**
@@ -87,7 +87,12 @@ export async function collect(opts = {}) {
     return { target, ...result };
   });
 
-  const results = await pool(tasks, concurrency);
+  // pool نتیجه هر کار را در پاکت {ok,data} می‌پیچد (تا استثنای یک کار بقیه را
+  // نکشد). اگر پاکت باز نشود، r.target تعریف‌نشده است و همان اولین دسترسی به
+  // r.target.id استثنا پرتاب می‌کند؛ آن استثنا از collect بیرون می‌رود و کل منبع
+  // «بانک‌ها» با پیام بی‌معنای «Cannot read properties of undefined» از دست
+  // می‌رود. unwrapPool پاکت را باز می‌کند و هدف را بر پایه اندیس بازمی‌گرداند.
+  const results = unwrapPool(await pool(tasks, concurrency), targets, 'target');
   const observations = [];
 
   for (const r of results) {

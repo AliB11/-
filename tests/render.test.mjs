@@ -70,6 +70,25 @@ test('قالب فیلترها و برگه‌های دسته‌بندی ساخت�
   }
 });
 
+test('فیلترهای ذخیره‌شده پس از بازخوانی صفحه انتخاب‌شده می‌مانند', () => {
+  // مقدار minScore در وضعیت «عدد» نگه داشته می‌شود ولی مقدار option رشته است؛
+  // اگر مقایسه دقیق باشد، فیلتر اعمال است ولی فهرست «نمایش همه» را نشان می‌دهد.
+  const previous = { ...store.store.filters };
+  const bank = store.availableBanksIn(previous.category)[0];
+
+  store.store.filters.minScore = 65;
+  store.store.filters.bank = bank;
+
+  const html = views.filtersHTML();
+  assert.match(html, /<option value="65" selected>/, 'حداقل امتیاز ذخیره‌شده باید انتخاب‌شده بماند');
+  assert.ok(
+    html.includes(`<option value="${bank}" selected>`),
+    `بانک «${bank}» باید انتخاب‌شده علامت بخورد`,
+  );
+
+  Object.assign(store.store.filters, previous);
+});
+
 test('کارت محصول برای همه رکوردها بدون خطا ساخته می‌شود', () => {
   for (const category of ['deposits', 'credit', 'loans', 'loyalty']) {
     store.store.filters.category = category;

@@ -142,7 +142,10 @@ export async function loadData() {
 
   store.products = productsRaw.map(normalizeProduct);
   store.banks = bundled?.banks ?? [];
-  store.indicators = (fresh ? null : bundled?.indicators) ?? bundled?.indicators ?? {};
+  // شاخص‌های کلان، بازه‌های مصوب و فهرست بانک‌ها فقط در بسته درون‌خطی هستند
+  // (products.json تنها محصولات را دارد)؛ پس حتی وقتی نسخه تازه‌تر JSON
+  // جایگزین می‌شود، این بخش‌ها از بسته خوانده می‌شوند.
+  store.indicators = bundled?.indicators ?? {};
   store.ranges = bundled?.ranges ?? {};
   store.derived = bundled?.derived ?? {};
   store.period = bundled?.period ?? '';

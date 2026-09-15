@@ -7,7 +7,7 @@
  * نه سلکتور CSS؛ این روش در برابر تغییر قالب سایت مقاوم است.
  */
 
-import { get, pool, runSource } from '../lib/http.mjs';
+import { get, pool, runSource, unwrapPool } from '../lib/http.mjs';
 import { foldForMatch, normalizeText, parseRates, parseTomanAmount, stripTags, toNumber } from '../lib/parse.mjs';
 import { parseJalaliDate } from '../lib/jalali.mjs';
 
@@ -405,6 +405,42 @@ export function selectFetchSet(index, opts = {}) {
 }
 
 /**
+ * واکشی مجموعه‌ای از صفحه‌های وام و تبدیل آن‌ها به رکورد.
+ *
+ * این بخش از collect جدا شده تا مستقل از نقشه سایت (و بدون شبکه واقعی) قابل
+ * آزمون باشد: آزمون می‌تواند فهرست دلخواهی از نشانی‌ها را با سرور محلی بسنجد.
+ *
+ * @param {Array<{url:string, lastmod?:string|null}>} work
+ * @param {{concurrency?:number, log?:Function}} [opts]
+ * @returns {Promise<{products:object[], failures:Array<{url:string,error:string}>}>}
+ */
+export async function collectPages(work, opts = {}) {
+  const { concurrency = 5 } = opts;
+
+  const tasks = work.map((entry) => async () => {
+    const result = await runSource(`rade:${entry.url}`, async () => {
+      const html = await get(entry.url, { timeout: 25_000, retries: 1 });
+      return mapToProduct(entry.url, html);
+    });
+    return { entry, ...result };
+  });
+
+  // pool نتیجه هر کار را در پاکت {ok,data} می‌پیچد. اگر پاکت باز نشود، آنچه
+  // «محصول» خوانده می‌شود در واقع پوسته‌ای از نتیجه است (بدون فیلد product) و
+  // mergeProducts آن را بی‌صدا دور می‌اندازد؛ یعنی خط لوله «موفق» گزارش می‌کند
+  // ولی هیچ داده‌ای به‌روز نمی‌شود. unwrapPool پاکت را باز می‌کند و در شکستِ
+  // سطح pool، نشانی را از روی اندیس بازمی‌گرداند.
+  const results = unwrapPool(await pool(tasks, concurrency), work, 'entry');
+
+  const products = results.filter((r) => r.ok && r.data).map((r) => r.data);
+  const failures = results
+    .filter((r) => !r.ok)
+    .map((f) => ({ url: f.entry?.url ?? 'نامشخص', error: f.error }));
+
+  return { products, failures };
+}
+
+/**
  * دریافت و تبدیل صفحات وام.
  *
  * دو نوع صفحه واکشی می‌شود:
@@ -429,17 +465,7 @@ export async function collect(opts = {}) {
 
   const work = [...selected, ...rotation];
 
-  const tasks = work.map((entry) => async () => {
-    const result = await runSource(`rade:${entry.url}`, async () => {
-      const html = await get(entry.url, { timeout: 25_000, retries: 1 });
-      return mapToProduct(entry.url, html);
-    });
-    return { entry, ...result };
-  });
-
-  const results = await pool(tasks, concurrency);
-  const products = results.filter((r) => r.ok && r.data).map((r) => r.data);
-  const failed = results.filter((r) => !r.ok);
+  const { products, failures } = await collectPages(work, { concurrency, log });
 
   return {
     source: 'rade.ir',
@@ -448,7 +474,7 @@ export async function collect(opts = {}) {
     fresh: selected.length,
     rotated: rotation.length,
     parsed: products.length,
-    failures: failed.map((f) => ({ url: f.entry.url, error: f.error })),
+    failures,
     products,
   };
 }

@@ -19,6 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    # پوسته bash با pipefail: اگر لوله‌ای در مراحل بررسی باشد، شکست بخش اول
+    # پشت بخش دوم پنهان نمی‌ماند و اجرا درست سرخ می‌شود.
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: دریافت مخزن
         uses: actions/checkout@v7
