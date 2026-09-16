@@ -8,7 +8,10 @@
 import {
   esc, fa, faNum, faToman, faPercent, faSignedPercent, faDate, faAgo, freshness, safeUrl, daysSince,
 } from './util.js';
-import { CATEGORY_META, store, scoreOf, resultOf, summary, availableBanks, availableBanksIn, PRESETS } from './store.js';
+import {
+  CATEGORY_META, store, scoreOf, resultOf, summary, availableBanks, availableBanksIn, PRESETS,
+  CONTRACT_META, CONTRACT_KEYS, isCreditCategory, contractCounts,
+} from './store.js';
 import { scoreTone, explainScore, WEIGHT_META, WEIGHT_KEYS } from './score.js';
 import { scoreRing, donut, rateLadder, compareBars, freshnessGrid } from './charts.js';
 import { loanSummary, realRate, scheduleFor, scheduleLegacy } from './finance.js';
@@ -135,6 +138,8 @@ export function filtersHTML() {
   const f = store.filters;
   const banks = availableBanksIn(f.category);
   const s = summary();
+  // «نوع عقد» فقط برای محصولات اعتباری معنا دارد؛ در دسته‌های دیگر مخفی می‌ماند.
+  const contracts = isCreditCategory(f.category) ? contractCounts(f.category) : null;
 
   const weightRow = (key) => {
     const meta = WEIGHT_META[key];
@@ -193,6 +198,20 @@ export function filtersHTML() {
           ${option('no-guarantor', 'بدون ضامن', f.collateral)}
         </select>
       </label>
+
+      ${
+        contracts
+          ? `<label class="field">
+        <span class="field-label">نوع عقد</span>
+        <select data-filter="contract">
+          ${option('all', `همه عقود (${fa(contracts.all)})`, f.contract)}
+          ${CONTRACT_KEYS
+            .map((k) => option(k, `${CONTRACT_META[k].label} (${fa(contracts[k] ?? 0)})`, f.contract))
+            .join('')}
+        </select>
+      </label>`
+          : ''
+      }
 
       <label class="field">
         <span class="field-label">سطح اطمینان داده</span>
@@ -361,6 +380,12 @@ export function cardHTML(p) {
            ${realLabel(p)} ${faSignedPercent(result.realRate)}</span>`
       : '';
 
+  // نشان نوع عقد فقط برای محصولات اعتباری. برچسب‌ها از ثابت‌های داخلی
+  // (CONTRACT_META) می‌آیند، نه از داده — بنابراین جای امن‌اند.
+  const contractChip = isCreditCategory(p.category)
+    ? `<span class="chip" style="padding:1px 8px">${esc(CONTRACT_META[p.contractType]?.short ?? 'نامشخص')}</span>`
+    : '';
+
   return `
   <article class="card ${compared ? 'is-compared' : ''} ${p.stale ? 'is-stale' : ''}"
     style="--card-accent:${meta.color}22" data-card="${esc(p.id)}">
@@ -400,6 +425,7 @@ export function cardHTML(p) {
 
     <div class="tags">
       <span class="chip" style="padding:1px 8px">${esc(collateralLabel[p.collateralKind] ?? 'نامشخص')}</span>
+      ${contractChip}
       ${real}
       ${(p.tags || []).slice(0, 3).map((t) => `<span class="tag">${esc(t)}</span>`).join('')}
     </div>
@@ -812,6 +838,7 @@ export function detailHTML(p) {
       ${p.multiPlan ? `<div><span class="k">توجه</span><span class="v" style="font-size:var(--fs-3xs);color:var(--text-3);line-height:1.9">این صفحه یک بسته چند طرح مستقل است؛ سقف و مدت بازپرداخت بین طرح‌ها متفاوت است و ارقام منفرد در جدول مقایسه آورده نمی‌شود.</span></div>` : ''}
       ${spec('حداقل مبلغ', esc(faToman(p.minAmount)))}
       ${spec('مدت', fa(esc(p.termLabel || (p.termMonths ? `${fa(p.termMonths)} ماه` : 'نامشخص'))))}
+      ${isLoan ? spec('نوع عقد', `${esc(CONTRACT_META[p.contractType]?.label ?? 'نامشخص')}${CONTRACT_META[p.contractType]?.hint ? ` <span style="font-size:var(--fs-3xs);color:var(--text-4)">(${esc(CONTRACT_META[p.contractType].hint)})</span>` : ''}`) : ''}
       ${spec('وثیقه / ضمانت', fa(esc(p.collateral)))}
       ${spec('نوع وثیقه', esc(collateralLabel[p.collateralKind] ?? 'نامشخص'))}
       ${spec('سطح اطمینان', esc((confChip[p.confidence] ?? confChip.medium)[1]))}
@@ -992,6 +1019,17 @@ export function methodModalHTML() {
         از بازده بازار محروم می‌شود و تورم آن را می‌فرساید.</li>
       <li><b>اعتبار منبع.</b> رکوردهای گردآوری خودکار، کم‌اطمینان یا نیازمند بازبینی حداکثر ۸ درصد امتیاز کمتری می‌گیرند.</li>
     </ul>
+
+    <div class="section-title">فیلتر نوع عقد (تسهیلات و اعتبار)</div>
+    <p style="font-size:var(--fs-xs);line-height:2.05;color:var(--text-2)">
+      تسهیلات بر پایه سه خانواده عقد تفکیک می‌شوند: <b>قرض‌الحسنه</b> (کارمزد یک‌بار روی اصل)،
+      <b>عقود غیرمشارکتی/مبادله‌ای</b> (مرابحه، مزارعه، اجاره و مانند آن‌ها) و <b>عقود مشارکتی</b>
+      (مضاربه و مشارکت). اگر رکورد نوع عقد را صریح ثبت نکرده باشد، از خود رکورد استنتاج می‌شود:
+      محصولات کارمزد‌محور (rateKind: fee) قطعاً قرض‌الحسنه‌اند؛ ذکر صریح مشارکت یا مضاربه در متن
+      آن‌ها را مشارکتی می‌شمارد؛ و تسهیلات سودمحور دیگر — در غیاب ذکر صریح — چون غلبه عملی
+      و سقف‌های مصوب شورای پول و اعتبار با عقد مبادله‌ای هم‌خوان است، غیرمشارکتی فرض می‌شوند.
+      محصولات بدون نرخ «نامشخص» می‌مانند؛ برای آن‌ها ادعایی شکل نمی‌گیرد.
+    </p>
 
     <div class="section-title">مسئولیت‌پذیری داده</div>
     <p style="font-size:var(--fs-xs);line-height:2.05;color:var(--text-2)">

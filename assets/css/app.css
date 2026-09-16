@@ -782,11 +782,21 @@ input[type='range']::-moz-range-thumb {
 .toolbar-spacer { margin-inline-start: auto; }
 
 /* ---------- ۱۲. کارت محصول ---------- */
+/*
+ * ارتفاع یکدست در هر ردیف:
+ *
+ * align-items: start (حالت پیشین) هر کارت را به ارتفاع محتوای خودش فشرده
+ * می‌کرد؛ توضیحات طولانی یا برچسب‌های بیشتر، برخی کارت‌ها را بلندتر از
+ * هم‌ردیفشان می‌کردند و شبکه نامنظم به نظر می‌رسید. با stretch (مقدار
+ * پیش‌فرض گرید) همه کارت‌های یک ردیف هم‌ارتفاع می‌شوند و کارت خودش — که
+ * ستون flex است — فاصلهٔ مازاد را به پاورقی (margin-block-start: auto)
+ * واگذار می‌کند، پس دکمه‌ها و تاریخ کنترل همیشه در یک خط پایین‌دست می‌نشینند.
+ */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: var(--sp-4);
-  align-items: start;
+  align-items: stretch;
 }
 
 .card {

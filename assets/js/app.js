@@ -11,7 +11,7 @@ import {
 } from './util.js';
 import {
   store, loadData, recalculate, filtered, summary, saveFilters, saveWeights,
-  saveCompare, applyPreset, availableBanksIn, CATEGORY_META,
+  saveCompare, applyPreset, availableBanksIn, CATEGORY_META, CONTRACT_META, deriveContractType,
 } from './store.js';
 import { DEFAULT_WEIGHTS, WEIGHT_META, PRESETS } from './score.js';
 import { scheduleFor, scheduleLegacy, effectiveAnnualRate, realRate } from './finance.js';
@@ -135,6 +135,7 @@ function resetFilters() {
     channel: 'all',
     collateral: 'all',
     confidence: 'all',
+    contract: 'all',
     category,
     sort: 'score',
     onlyFresh: false,
@@ -288,6 +289,7 @@ function download(filename, content, type) {
 
 const CSV_COLUMNS = [
   'id', 'bank', 'product', 'category', 'subcategory', 'rate', 'rateKind',
+  'contractType',
   'minAmount', 'maxAmount', 'termMonths', 'collateralKind', 'collateral',
   'confidence', 'autoDiscovered', 'stale', 'lastUpdated', 'sourceUrl',
 ];
@@ -394,6 +396,8 @@ function mergeLocal(rows) {
       extra: {},
       local: true,
     };
+    // نوع عقد: مقدار صریح داده اولویت دارد و در نبود آن از خود رکورد استنتاج می‌شود.
+    normalized.contractType = CONTRACT_META[raw.contractType] ? raw.contractType : deriveContractType(normalized);
     const at = index.get(normalized.id);
     if (at != null) base[at] = normalized;
     else {
