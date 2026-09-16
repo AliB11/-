@@ -347,18 +347,18 @@ export function bankMonogram(name) {
  * بنابراین برچسب و رنگ باید بر پایه دسته تعیین شود، نه بر پایه علامت عدد.
  */
 export function realLabel(product) {
-  return product.category === 'deposits' ? 'بازده حقیقی' : 'هزینه حقیقی';
+  return product.category === 'deposits' || product.category === 'funds' ? 'بازده حقیقی' : 'هزینه حقیقی';
 }
 
 export function realTitle(product) {
-  return product.category === 'deposits'
+  return product.category === 'deposits' || product.category === 'funds'
     ? 'بازده حقیقی پس از کسر تورم — عدد منفی یعنی قدرت خرید کاهش می‌یابد'
     : 'هزینه حقیقی استقراض پس از کسر تورم — عدد منفی به سود وام‌گیرنده است';
 }
 
 export function realTone(product, real) {
   if (real == null) return 'chip';
-  const good = product.category === 'deposits' ? real > 0 : real < 0;
+  const good = product.category === 'deposits' || product.category === 'funds' ? real > 0 : real < 0;
   return good ? 'chip--good' : 'chip--bad';
 }
 
@@ -408,7 +408,7 @@ export function cardHTML(p) {
 
     <div class="metrics">
       <div class="metric">
-        <span class="k">${p.category === 'deposits' ? 'نرخ سود' : 'نرخ / کارمزد'}</span>
+        <span class="k">${p.category === 'deposits' || p.category === 'funds' ? 'نرخ سود' : 'نرخ / کارمزد'}</span>
         <span class="v num">${rateDisplay}</span>
       </div>
       <div class="metric">
@@ -784,7 +784,7 @@ export function detailHTML(p) {
       : '';
 
   const depositSection =
-    p.category === 'deposits' && inflation != null && p.rate > 0
+    (p.category === 'deposits' || p.category === 'funds') && inflation != null && p.rate > 0
       ? `
     <div class="section-title">تحلیل بازده حقیقی</div>
     <div class="calc-out">
@@ -1061,7 +1061,7 @@ export function footerHTML() {
       <div>
         <h4>درباره سامانه</h4>
         <p>
-          رادار محصولات بانکی، ${fa(s.total)} محصول مالی از ${fa(s.banks)} بانک و مؤسسه اعتباری را
+          رادار محصولات مالی و بانکی ایران، انواع سپرده‌ها، صندوق‌های درآمد ثابت، تسهیلات و اعتبارات را
           با امتیازدهی شفاف و تعدیل‌شده نسبت به تورم مقایسه می‌کند.
           کد و داده‌ها باز هستند و خط لوله به‌روزرسانی به‌صورت خودکار اجرا می‌شود.
         </p>
@@ -1073,6 +1073,7 @@ export function footerHTML() {
             .slice(0, 4)
             .map(([name, url]) => `<li><a href="${safeUrl(url)}" target="_blank" rel="noopener noreferrer">${esc(name)}</a></li>`)
             .join('')}
+          <li><a href="https://fipiran.ir" target="_blank" rel="noopener noreferrer">مرکز پردازش اطلاعات مالی ایران (فیپیران)</a></li>
         </ul>
       </div>
       <div>

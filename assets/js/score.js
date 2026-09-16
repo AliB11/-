@@ -121,7 +121,7 @@ export function scoreProduct(product, weights, ctx = {}) {
     const real = (1 + basis / 100) / (1 + inflation / 100) - 1;
     realRate = Number((real * 100).toFixed(1));
 
-    if (product.category === 'deposits') {
+    if (product.category === 'deposits' || product.category === 'funds') {
       // بازده حقیقی منفی شدید → جریمه متناسب (حداکثر ۱۲ نمره)
       adjustment -= Math.min(12, Math.abs(realRate) * 0.18);
     } else if (product.category === 'loans' && product.rate <= 6) {
@@ -173,11 +173,11 @@ export function explainScore(product, result, ctx = {}) {
   if (weakest) lines.push(`ضعیف‌ترین بعد: ${WEIGHT_META[weakest.k].label} با ${faNum(Math.round(weakest.v))} از ۱۰۰`);
 
   if (result.realRate != null) {
-    // برچسب باید با دسته هم‌خوان باشد: عدد منفی برای سپرده «خبر بد» و برای
+    // برچسب باید با دسته هم‌خوان باشد: عدد منفی برای سپرده و صندوق «خبر بد» و برای
     // تسهیلات «خبر خوب» است، پس واژه یکسان برای هر دو گمراه‌کننده است.
-    const isDeposit = product.category === 'deposits';
-    const label = isDeposit ? 'بازده حقیقی' : 'هزینه حقیقی';
-    const verdict = isDeposit
+    const isDepositOrFund = product.category === 'deposits' || product.category === 'funds';
+    const label = isDepositOrFund ? 'بازده حقیقی' : 'هزینه حقیقی';
+    const verdict = isDepositOrFund
       ? result.realRate < 0
         ? 'منفی است؛ نگهداری پول در این محصول قدرت خرید را کاهش می‌دهد'
         : 'مثبت است؛ این محصول تورم را جبران می‌کند'

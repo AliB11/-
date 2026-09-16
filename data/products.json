@@ -2,13 +2,14 @@
   "autoDiscovered": 121,
   "counts": {
     "credit": 52,
-    "deposits": 17,
+    "deposits": 23,
+    "funds": 8,
     "loans": 101,
     "loyalty": 10,
-    "total": 180
+    "total": 194
   },
   "disclaimer": "هر رکورد دارای منبع و تاریخ کنترل است. نرخ‌های سود تابع مصوبات شورای پول و اعتبار و بخشنامه‌های بانک مرکزی است و بانک‌ها می‌توانند شرایط را تغییر دهند. پیش از اقدام، شرایط را از منبع رسمی بانک تأیید کنید.",
-  "generatedAt": "2026-09-16T08:42:56.127Z",
+  "generatedAt": "2026-09-16T16:51:08.841Z",
   "generator": "tools/collect.mjs",
   "products": [
     {
@@ -301,6 +302,49 @@
       "termMonths": 12
     },
     {
+      "amountLabel": "حداقل ۲۰۰ میلیون تومان",
+      "audience": "سرمایه‌گذاران با حداقل ۲۰۰ تا ۵۰۰ میلیون تومان موجودی",
+      "bank": "بانک گردشگری",
+      "bankId": "gardeshgari",
+      "benefit": 72,
+      "category": "deposits",
+      "collateral": "ندارد",
+      "collateralKind": "none",
+      "confidence": "medium",
+      "desc": "بانک گردشگری در قالب بسته‌های ویژه تجهیز منابع، به سپرده‌های ۲۰۰ میلیون تومان تا چند میلیارد تومانی نرخ‌های ترجیحی از ۲۷ تا ۲۸.۵ درصد پرداخت می‌کند. این طرح‌ها به شکل قراردادهای مشارکتی خاص یا سپرده‌های پشتیبان صندوق منعقد می‌شوند.",
+      "digital": 78,
+      "friction": 76,
+      "id": "gardeshgari-deposit-pref-28",
+      "lastUpdated": "2026-09-14",
+      "maxAmount": null,
+      "minAmount": 200000000,
+      "product": "سپرده با سود ترجیحی بانک گردشگری (طرح الماس ۲۷ تا ۲۸.۵٪)",
+      "rate": 28.5,
+      "rateKind": "profit",
+      "rateLabel": "سود ۲۸.۵٪ سالانه (ترجیحی پلکانی برحسب مانده)",
+      "regulatory": false,
+      "requirements": [
+        "تودیع حداقل ۲۰۰ میلیون تومان",
+        "تکمیل فرم توافق‌نامه نرخ اختصاصی"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "press",
+        "title": "تجارت‌نیوز / گزارش میدانی سود سپرده‌های بالای شبکه بانکی",
+        "url": "https://tejaratnews.com"
+      },
+      "speed": 76,
+      "subcategory": "preferential",
+      "tags": [
+        "سود ترجیحی",
+        "بانک گردشگری",
+        "نرخ بالا",
+        "طرح الماس"
+      ],
+      "termLabel": "یک‌ساله",
+      "termMonths": 12
+    },
+    {
       "amountLabel": "حداقل ۱۰۰ میلیون تومان",
       "audience": "سپرده‌گذاران میانی",
       "bank": "بانک ایران زمین",
@@ -374,6 +418,89 @@
       "tags": [
         "نرخ بالا",
         "بانکداری شرکتی"
+      ],
+      "termLabel": "یک‌ساله",
+      "termMonths": 12
+    },
+    {
+      "amountLabel": "حداقل ۵۰۰ میلیون تومان",
+      "audience": "سپرده‌گذاران کلان بخش مسکن و ساختمان",
+      "bank": "بانک مسکن",
+      "bankId": "maskan",
+      "benefit": 70,
+      "category": "deposits",
+      "collateral": "ندارد",
+      "collateralKind": "none",
+      "confidence": "medium",
+      "desc": "طرح ویژه بانک مسکن با پرداخت سود علی‌الحساب ترجیحی ۲۸ درصدی برای تأمین مالی پروژه‌های کلان انبوه‌سازی و ساختمانی با آستانه ورودی ۵۰۰ میلیون تومان.",
+      "digital": 74,
+      "friction": 74,
+      "id": "maskan-sp-deposit-pref-28",
+      "lastUpdated": "2026-09-13",
+      "maxAmount": null,
+      "minAmount": 500000000,
+      "product": "سپرده سرمایه‌گذاری طرح ویژه بانک مسکن (نرخ ترجیحی ۲۸٪)",
+      "rate": 28,
+      "rateKind": "profit",
+      "rateLabel": "سود ۲۸٪ سالانه برای مبالغ ۵۰۰ میلیون تومان به بالا",
+      "regulatory": false,
+      "requirements": [
+        "تودیع حداقل ۵۰۰ میلیون تومان در شعب منتخب"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "press",
+        "title": "بانک اول / رده — سود سپرده‌های بانکی",
+        "url": "https://bankavl.com"
+      },
+      "speed": 72,
+      "subcategory": "preferential",
+      "tags": [
+        "سود ترجیحی",
+        "بانک مسکن",
+        "نرخ ۲۸٪",
+        "تأمین مالی ساخت"
+      ],
+      "termLabel": "یک‌ساله",
+      "termMonths": 12
+    },
+    {
+      "amountLabel": "حداقل ۱۰۰ میلیون تومان",
+      "audience": "سپرده‌گذاران متقاضی بازدهی بالاتر از سقف مصوب در مؤسسات اعتباری",
+      "bank": "مؤسسه اعتباری ملل",
+      "bankId": "mellal",
+      "benefit": 63,
+      "category": "deposits",
+      "collateral": "ندارد",
+      "collateralKind": "none",
+      "confidence": "medium",
+      "desc": "مؤسسه اعتباری ملل برای سپرده‌های بلندمدت با مبالغ بالای ۱۰۰ میلیون تومان نرخ ترجیحی ۲۶ درصد ارائه می‌دهد. سود به شکل ماهانه پرداخت شده و قابلیت توثیق جهت تسهیلات خرد را داراست.",
+      "digital": 70,
+      "friction": 78,
+      "id": "mellal-deposit-pref-26",
+      "lastUpdated": "2026-09-12",
+      "maxAmount": null,
+      "minAmount": 100000000,
+      "product": "سپرده سرمایه‌گذاری ویژه مؤسسه ملل (سود ترجیحی ۲۶٪)",
+      "rate": 26,
+      "rateKind": "profit",
+      "rateLabel": "سود ۲۶٪ سالانه با واریز ماهانه",
+      "regulatory": false,
+      "requirements": [
+        "افتتاح حساب بلندمدت ویژه ملل"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "press",
+        "title": "اقتصاد آنلاین / رده",
+        "url": "https://www.rade.ir"
+      },
+      "speed": 74,
+      "subcategory": "preferential",
+      "tags": [
+        "سود ترجیحی",
+        "مؤسسه ملل",
+        "نرخ ۲۶٪"
       ],
       "termLabel": "یک‌ساله",
       "termMonths": 12
@@ -539,6 +666,50 @@
       "termMonths": 12
     },
     {
+      "amountLabel": "حداقل ۱ میلیارد تومان",
+      "audience": "سپرده‌گذاران کلان، اشخاص حقیقی و حقوقی با مانده‌های میلیاردی",
+      "bank": "بانک سامان",
+      "bankId": "saman",
+      "benefit": 76,
+      "category": "deposits",
+      "collateral": "ندارد — حفظ کف مانده در طول دوره",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "طرح ترجیحی ویژه بانک سامان برای جذب منابع کلان با پیشنهاد نرخ سود تا ۳۰ درصد سالانه (فراتر از سقف مصوب ۲۲.۵٪). این نرخ با توافق مدیریت شعب برای مانده‌های بالای ۱ میلیارد تومان تخصیص می‌یابد و به صورت ماهانه واریز می‌شود.",
+      "digital": 82,
+      "friction": 70,
+      "id": "saman-sp-deposit-30",
+      "lastUpdated": "2026-09-15",
+      "maxAmount": null,
+      "minAmount": 1000000000,
+      "product": "سپرده ویژه با سود ترجیحی ۳۰٪ (سپرده‌های کلان بالای ۱ میلیارد تومان)",
+      "rate": 30,
+      "rateKind": "profit",
+      "rateLabel": "سود ترجیحی تا ۳۰٪ سالانه برای موجودی بالای ۱ میلیارد",
+      "regulatory": false,
+      "requirements": [
+        "افتتاح حساب و تامین حداقل ۱ میلیارد تومان مانده",
+        "موافقت اداره کل اعتبارات و شعب ویژه بانک سامان"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "press",
+        "title": "رده / بررسی میدانی نرخ‌های ترجیحی شعب بانکی",
+        "url": "https://www.rade.ir"
+      },
+      "speed": 75,
+      "subcategory": "preferential",
+      "tags": [
+        "سود ترجیحی",
+        "بالاترین نرخ",
+        "سپرده کلان",
+        "بانک سامان",
+        "سود ۳۰٪"
+      ],
+      "termLabel": "یک‌ساله با شرط حفظ مانده",
+      "termMonths": 12
+    },
+    {
       "amountLabel": "حداقل ۱۰۰ میلیون تومان",
       "audience": "سپرده‌گذاران با آستانه ورود متوسط",
       "bank": "بانک سرمایه",
@@ -618,6 +789,48 @@
       "termMonths": 12
     },
     {
+      "amountLabel": "حداقل ۱۰۰ میلیون تومان",
+      "audience": "مشتریان حقیقی و حقوقی با سرمایه‌های متوسط و بالا",
+      "bank": "بانک شهر",
+      "bankId": "shahr",
+      "benefit": 64,
+      "category": "deposits",
+      "collateral": "ندارد",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "سپرده مدت‌دار ویژه بانک شهر با بهره‌گیری از ظرفیت صندوق‌های همکار و ابزارهای بازار پول با پرداخت سود علی‌الحساب ۲۶ درصد سالانه. امکان تقلیل نرخ شکست در صورت نگهداری بیش از ۳ ماه.",
+      "digital": 82,
+      "friction": 80,
+      "id": "shahr-deposit-pref-26",
+      "lastUpdated": "2026-09-15",
+      "maxAmount": null,
+      "minAmount": 100000000,
+      "product": "سپرده سرمایه‌گذاری ترجیحی بانک شهر (طرح ۲۵ تا ۲۶٪)",
+      "rate": 26,
+      "rateKind": "profit",
+      "rateLabel": "سود ترجیحی ۲۶٪ سالانه",
+      "regulatory": false,
+      "requirements": [
+        "حداقل موجودی ۱۰۰ میلیون تومان"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "press",
+        "title": "رده / بانک اول — سود سپرده‌های بانک‌ها",
+        "url": "https://bankavl.com"
+      },
+      "speed": 78,
+      "subcategory": "preferential",
+      "tags": [
+        "سود ترجیحی",
+        "بانک شهر",
+        "نرخ ۲۶٪",
+        "سپرده ویژه"
+      ],
+      "termLabel": "یک‌ساله با سود ماهانه",
+      "termMonths": 12
+    },
+    {
       "amountLabel": "حداقل ۱ میلیون تومان",
       "audience": "سپرده‌گذاران خرد و متوسط",
       "bank": "بانک سینا",
@@ -655,6 +868,48 @@
         "مناسب مبالغ خرد"
       ],
       "termLabel": "یک‌ساله",
+      "termMonths": 12
+    },
+    {
+      "amountLabel": "حداقل ۵۰۰ میلیون تومان",
+      "audience": "مشتریان ویژه با منابع بالای ۵۰۰ میلیون تومان",
+      "bank": "بانک سینا",
+      "bankId": "sina",
+      "benefit": 67,
+      "category": "deposits",
+      "collateral": "ندارد",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "طرح ترجیحی بانک سینا با سود ۲۷ درصدی ویژه مبالغ نیم میلیارد تومان به بالا. پرداخت ماهانه سود با امکان مدیریت کامل از طریق سامانه سینابانک.",
+      "digital": 85,
+      "friction": 75,
+      "id": "sina-sp-deposit-pref-27",
+      "lastUpdated": "2026-09-14",
+      "maxAmount": null,
+      "minAmount": 500000000,
+      "product": "سپرده ویژه ممتاز بانک سینا (نرخ ترجیحی ۲۷٪ برای مبالغ ۵۰۰ میلیون به بالا)",
+      "rate": 27,
+      "rateKind": "profit",
+      "rateLabel": "سود ۲۷٪ سالانه با آستانه ۵۰۰ میلیون تومان",
+      "regulatory": false,
+      "requirements": [
+        "افتتاح حساب و تأمین موجودی ۵۰۰ میلیون تومانی"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "press",
+        "title": "بانک سینا / بررسی‌های میدانی شعب",
+        "url": "https://sinabank.ir"
+      },
+      "speed": 79,
+      "subcategory": "preferential",
+      "tags": [
+        "سود ترجیحی",
+        "بانک سینا",
+        "نرخ ۲۷٪",
+        "مشتریان ممتاز"
+      ],
+      "termLabel": "یک‌ساله با پرداخت ماهانه",
       "termMonths": 12
     },
     {
@@ -8880,6 +9135,352 @@
         "امتیاز"
       ],
       "termLabel": "مستمر",
+      "termMonths": null
+    },
+    {
+      "amountLabel": "حداقل ۱۰۰ هزار تومان در سامانه‌های بورسی",
+      "audience": "سرمایه‌گذاران خرد و کلان خواهان بالاترین نقدشوندگی روزانه بازار",
+      "bank": "مشاور سرمایه‌گذاری ترنج",
+      "bankId": "toranj",
+      "benefit": 82,
+      "category": "funds",
+      "collateral": "ندارد — نقدشوندگی از طریق بازار سرمایه",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "صندوق افران دارای بزرگ‌ترین حجم بازارگردانی روزانه در میان ETFهای درآمد ثابت است (پوشش روزانه صدها میلیارد تومان نقدشوندگی). سود با رشد قیمت واحدها (NAV) اعمال می‌شود و معاف از مالیات است.",
+      "digital": 96,
+      "friction": 95,
+      "id": "fund-afran-toranj",
+      "lastUpdated": "2026-09-15",
+      "maxAmount": null,
+      "minAmount": 100000,
+      "product": "صندوق درآمد ثابت افرا نماد پایدار (ETF - افران)",
+      "rate": 36,
+      "rateKind": "profit",
+      "rateLabel": "سود مؤثر ۳۶٪ سالانه (روزشمار مرکب بدون تقسیم سود)",
+      "regulatory": true,
+      "requirements": [
+        "کد بورسی (سجام)"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "aggregator",
+        "title": "فیپیران / مدیریت فناوری بورس",
+        "url": "https://fipiran.ir"
+      },
+      "speed": 95,
+      "subcategory": "etf",
+      "tags": [
+        "صندوق درآمد ثابت",
+        "ETF بورسی",
+        "افران",
+        "نقدشوندگی سنگین",
+        "ترنج"
+      ],
+      "termLabel": "روزشمار — نقدشوندگی آنی با بازارگردانی فعال",
+      "termMonths": null
+    },
+    {
+      "amountLabel": "حداقل صدور ۱ واحد",
+      "audience": "سرمایه‌گذاران محافظه‌کار با تمرکز بر دریافت نقدی و منظم سود ماهانه",
+      "bank": "کارگزاری سهم آشنا / تأمین سرمایه آشنا",
+      "bankId": "ashna",
+      "benefit": 73,
+      "category": "funds",
+      "collateral": "ندارد",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "صندوق صدور و ابطالی امین آشنا از صندوق‌های پیشرو با پرداخت منظم ماهانه سود نقدی به حساب شبا سرمایه‌گذار. ترکیب دارایی باکیفیت و بازدهی پایدار ۲۹ درصدی در سال‌های اخیر.",
+      "digital": 89,
+      "friction": 91,
+      "id": "fund-amin-ashna",
+      "lastUpdated": "2026-09-15",
+      "maxAmount": null,
+      "minAmount": 100000,
+      "product": "صندوق با درآمد ثابت امین آشنا ایرانیان (صدور و ابطالی)",
+      "rate": 29,
+      "rateKind": "profit",
+      "rateLabel": "سود سالانه ۲۹٪ (واریز ماهانه سود به حساب بانکی)",
+      "regulatory": true,
+      "requirements": [
+        "احراز هویت سجام",
+        "ورود به سامانه صندوق امین آشنا"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "aggregator",
+        "title": "تارنمای صندوق امین آشنا ایرانیان",
+        "url": "https://fa.ashena.ir"
+      },
+      "speed": 87,
+      "subcategory": "issuance-redemption",
+      "tags": [
+        "صندوق درآمد ثابت",
+        "امین آشنا",
+        "واریز ماهانه",
+        "بدون شکست نرخ"
+      ],
+      "termLabel": "روزشمار با پرداخت در پایان هر ماه",
+      "termMonths": null
+    },
+    {
+      "amountLabel": "حداقل صدور ۱ واحد (حدود ۱۰۰ هزار تومان)",
+      "audience": "سرمایه‌گذاران خواهان دریافت منظم سود ماهانه با ضمانت نقدشوندگی بانکی",
+      "bank": "بانک شهر / تأمین سرمایه تمدن",
+      "bankId": "shahr",
+      "benefit": 72,
+      "category": "funds",
+      "collateral": "ندارد — ضمانت نقدشوندگی بانک شهر",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "بزرگ‌ترین صندوق سرمایه‌گذاری با درآمد ثابت کشور تحت مدیریت تأمین سرمایه تمدن با ضمانت نقدشوندگی بانک شهر. واریز ماهانه سود به حساب بانکی سرمایه‌گذار و امکان صدور و ابطال در تمام شعب بانک شهر و سامانه آی‌بی‌شاپ.",
+      "digital": 90,
+      "friction": 92,
+      "id": "fund-ganjineh-zarrin-shahr",
+      "lastUpdated": "2026-09-15",
+      "maxAmount": null,
+      "minAmount": 100000,
+      "product": "صندوق سرمایه‌گذاری گنجینه زرین شهر (صدور و ابطال / آی‌بی‌شاپ)",
+      "rate": 28.5,
+      "rateKind": "profit",
+      "rateLabel": "سود پیش‌بینی‌شده ۲۸.۵٪ سالانه (واریز ماهانه)",
+      "regulatory": true,
+      "requirements": [
+        "ثبت‌نام در سامانه آی‌بی‌شاپ یا مراجعه به شعب بانک شهر",
+        "احراز هویت سجامی"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "bank",
+        "title": "تأمین سرمایه تمدن — صندوق گنجینه زرین شهر",
+        "url": "https://ibshop.ir"
+      },
+      "speed": 86,
+      "subcategory": "issuance-redemption",
+      "tags": [
+        "صندوق درآمد ثابت",
+        "بانک شهر",
+        "واریز ماهانه",
+        "ضمانت نقدشوندگی",
+        "آی‌بی‌شاپ"
+      ],
+      "termLabel": "روزشمار با پرداخت ماهانه سود",
+      "termMonths": null
+    },
+    {
+      "amountLabel": "حداقل ۱۰۰ هزار تومان در سامانه معاملات آنلاین",
+      "audience": "سرمایه‌گذاران بازار سرمایه و متقاضیان پارکینگ پول با بالاترین بازده روزشمار",
+      "bank": "گروه مالی کاریزما",
+      "bankId": "charisma",
+      "benefit": 83,
+      "category": "funds",
+      "collateral": "ندارد — معامله در بورس",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "صندوق قابل معامله (ETF) با نماد کارا از پرمعامله‌ترین صندوق‌های درآمد ثابت بازار سرمایه. با بهره‌گیری از سود مرکب روزشمار به بازدهی سالانه بالای ۳۶ درصد دست یافته و نقدشوندگی بازارگردانی بسیار بالایی دارد.",
+      "digital": 96,
+      "friction": 95,
+      "id": "fund-kara-charisma",
+      "lastUpdated": "2026-09-15",
+      "maxAmount": null,
+      "minAmount": 100000,
+      "product": "صندوق درآمد ثابت نوع دوم کارا (ETF - کارا)",
+      "rate": 36.5,
+      "rateKind": "profit",
+      "rateLabel": "سود مؤثر مرکب سالانه حدود ۳۶.۵٪",
+      "regulatory": true,
+      "requirements": [
+        "کد بورسی فعال",
+        "سامانه معاملاتی کارگزاری"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "aggregator",
+        "title": "مرکز پردازش اطلاعات مالی ایران (فیپیران) / بورس تهران",
+        "url": "https://fipiran.ir"
+      },
+      "speed": 94,
+      "subcategory": "etf",
+      "tags": [
+        "صندوق درآمد ثابت",
+        "ETF بورسی",
+        "نماد کارا",
+        "کاریزما",
+        "سود مرکب"
+      ],
+      "termLabel": "روزشمار بدون جریمه ابطال",
+      "termMonths": null
+    },
+    {
+      "amountLabel": "حداقل ۱۰۰ هزار تومان (یک واحد ETF)",
+      "audience": "سرمایه‌گذاران به دنبال سود روزشمار بالاتر از سپرده و نقدشوندگی سریع",
+      "bank": "کاریزما / فارابی (سبدگردان فارابی)",
+      "bankId": "farabi",
+      "benefit": 84,
+      "category": "funds",
+      "collateral": "ندارد — معامله در بورس",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "صندوق قابل معامله (ETF) در بورس با نماد لبخند و مدیریت سبدگردان فارابی. پرداخت سود مؤثر سالانه تا ۳۷ درصد، محاسبه روزشمار بدون اعمال نرخ شکست و معاف از مالیات. گزینه‌ای جذاب در مقایسه با سپرده‌های بانکی متعارف.",
+      "digital": 95,
+      "friction": 94,
+      "id": "fund-labkhand-farabi",
+      "lastUpdated": "2026-09-15",
+      "maxAmount": null,
+      "minAmount": 100000,
+      "product": "صندوق درآمد ثابت لبخند فارابی (ETF - لبخند)",
+      "rate": 37,
+      "rateKind": "profit",
+      "rateLabel": "سود مؤثر ۳۷٪ سالانه (روزشمار مرکب)",
+      "regulatory": true,
+      "requirements": [
+        "کد بورسی (سجام)",
+        "ثبت سفارش از طریق سامانه‌های معاملاتی کارگزاری"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "aggregator",
+        "title": "مرکز پردازش اطلاعات مالی ایران (فیپیران) / فارابی",
+        "url": "https://fipiran.ir"
+      },
+      "speed": 92,
+      "subcategory": "etf",
+      "tags": [
+        "صندوق درآمد ثابت",
+        "ETF بورسی",
+        "روزشمار",
+        "سود ۳۷٪",
+        "معاف از مالیات"
+      ],
+      "termLabel": "روزشمار — بدون دوره قفل و بدون نرخ شکست",
+      "termMonths": null
+    },
+    {
+      "amountLabel": "حداقل ۱ واحد (حدود ۱۱۰ هزار تومان)",
+      "audience": "سرمایه‌گذاران کم‌ریسک متقاضی درآمد ماهانه ثابت و توثیق آسان برای وام",
+      "bank": "بانک پارسیان / تأمین سرمایه لوتوس پارسیان",
+      "bankId": "parsian",
+      "benefit": 73,
+      "category": "funds",
+      "collateral": "ندارد — با قابلیت توثیق جهت دریافت تسهیلات بانک پارسیان",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "از باسابقه‌ترین صندوق‌های درآمد ثابت بانکی با ضمانت نقدشوندگی بانک پارسیان. سود روزشمار در ۲۵ام هر ماه واریز می‌شود و واحدهای صندوق قابل توثیق برای اخذ تسهیلات بدون ضامن در بانک پارسیان هستند.",
+      "digital": 88,
+      "friction": 90,
+      "id": "fund-lotus-parsian",
+      "lastUpdated": "2026-09-15",
+      "maxAmount": null,
+      "minAmount": 110000,
+      "product": "صندوق سرمایه‌گذاری لوتوس پارسیان (صدور و ابطالی)",
+      "rate": 28.7,
+      "rateKind": "profit",
+      "rateLabel": "سود مؤثر ۲۸.۷٪ (اسمی ۲۵.۵٪ با واریز ماهانه)",
+      "regulatory": true,
+      "requirements": [
+        "کد سجام",
+        "پرتال آنلاین لوتوس یا شعب بانک پارسیان"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "bank",
+        "title": "تأمین سرمایه لوتوس پارسیان",
+        "url": "https://lotusib.ir"
+      },
+      "speed": 88,
+      "subcategory": "issuance-redemption",
+      "tags": [
+        "صندوق درآمد ثابت",
+        "بانک پارسیان",
+        "واریز ۲۵ام ماه",
+        "قابلیت توثیق وام"
+      ],
+      "termLabel": "روزشمار — اعمال سود ۲۵ام هر ماه",
+      "termMonths": null
+    },
+    {
+      "amountLabel": "حداقل ۱ واحد صدور",
+      "audience": "مشتریان شبکه گسترده بانک سپه متقاضی سود بالاتر از سقف مصوب سپرده",
+      "bank": "بانک سپه / مدیریت دارایی امید",
+      "bankId": "sepah",
+      "benefit": 71,
+      "category": "funds",
+      "collateral": "ندارد — پشتوانه شبکه شعب بانک سپه",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "صندوق درآمد ثابت با واریز ماهانه متصل به بانک سپه. با بهره‌گیری از سبد اوراق دولتی و سپرده‌های شرکتی، سودی معادل ۲۸ درصد را بدون ریسک کاهش ارزش اصل سرمایه پرداخت می‌کند.",
+      "digital": 82,
+      "friction": 88,
+      "id": "fund-omid-sepah",
+      "lastUpdated": "2026-09-15",
+      "maxAmount": null,
+      "minAmount": 100000,
+      "product": "صندوق سرمایه‌گذاری گنجینه امید ایرانیان (صدور و ابطالی بانک سپه)",
+      "rate": 28,
+      "rateKind": "profit",
+      "rateLabel": "سود سالانه ۲۸٪ با پرداخت ماهانه",
+      "regulatory": true,
+      "requirements": [
+        "حساب در بانک سپه یا ثبت‌نام آنلاین در تارنمای صندوق"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "bank",
+        "title": "مدیریت دارایی امید — بانک سپه",
+        "url": "https://omidfund.com"
+      },
+      "speed": 84,
+      "subcategory": "issuance-redemption",
+      "tags": [
+        "صندوق درآمد ثابت",
+        "بانک سپه",
+        "واریز ماهانه",
+        "صدور ابطال"
+      ],
+      "termLabel": "روزشمار — واریز سود ماهانه",
+      "termMonths": null
+    },
+    {
+      "amountLabel": "حداقل ۱۰۰ هزار تومان",
+      "audience": "کاربران کارگزاری آگاه و فعالان بازار سرمایه",
+      "bank": "سبدگردان آگاه",
+      "bankId": "agah",
+      "benefit": 81,
+      "category": "funds",
+      "collateral": "ندارد",
+      "collateralKind": "none",
+      "confidence": "high",
+      "desc": "صندوق قابل معامله یاقوت با نماد یاقوت از گروه آگاه. بازدهی باثبات، مدیریت حرفه‌ای سبد اوراق مشارکت دولتی و بانکی، و قابلیت نقدشوندگی سریع در تمامی روزهای معاملاتی بورس.",
+      "digital": 95,
+      "friction": 94,
+      "id": "fund-yaghoot-agah",
+      "lastUpdated": "2026-09-15",
+      "maxAmount": null,
+      "minAmount": 100000,
+      "product": "صندوق درآمد ثابت یاقوت آگاه (ETF - یاقوت)",
+      "rate": 35.5,
+      "rateKind": "profit",
+      "rateLabel": "سود مؤثر سالانه ۳۵.۵٪ (روزشمار)",
+      "regulatory": true,
+      "requirements": [
+        "کد بورسی"
+      ],
+      "source": {
+        "checked": "2026-09-16",
+        "kind": "aggregator",
+        "title": "مرکز پردازش اطلاعات مالی ایران (فیپیران)",
+        "url": "https://fipiran.ir"
+      },
+      "speed": 93,
+      "subcategory": "etf",
+      "tags": [
+        "صندوق درآمد ثابت",
+        "ETF بورسی",
+        "یاقوت",
+        "آگاه",
+        "روزشمار"
+      ],
+      "termLabel": "روزشمار با قابلیت خرید و فروش پیوسته",
       "termMonths": null
     }
   ],

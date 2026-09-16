@@ -3,40 +3,425 @@
   "generatedAt": "2026-09-15T00:00:00+03:30",
   "note": "فهرست بانک‌ها و مؤسسات اعتباری دارای مجوز بانک مرکزی ج.ا.ا که در سامانه رصد می‌شوند.",
   "banks": [
-    { "id": "melli", "name": "بانک ملی ایران", "nameEn": "Bank Melli Iran", "kind": "دولتی", "founded": 1307, "branches": 3200, "site": "https://bmi.ir", "aliases": ["ملی", "بام"] },
-    { "id": "mellat", "name": "بانک ملت", "nameEn": "Bank Mellat", "kind": "دولتی", "founded": 1359, "site": "https://bankmellat.ir", "aliases": ["ملت"] },
-    { "id": "saderat", "name": "بانک صادرات ایران", "nameEn": "Bank Saderat Iran", "kind": "دولتی", "founded": 1331, "site": "https://bsi.ir", "aliases": ["صادرات", "صد"] },
-    { "id": "tejarat", "name": "بانک تجارت", "nameEn": "Bank Tejarat", "kind": "دولتی", "founded": 1358, "site": "https://tejaratbank.ir", "aliases": ["تجارت"] },
-    { "id": "sepah", "name": "بانک سپه", "nameEn": "Bank Sepah", "kind": "دولتی", "founded": 1304, "site": "https://banksepah.ir", "aliases": ["سپه"] },
-    { "id": "keshavarzi", "name": "بانک کشاورزی", "nameEn": "Bank Keshavarzi", "kind": "دولتی", "site": "https://agri-bank.com", "aliases": ["کشاورزی"] },
-    { "id": "maskan", "name": "بانک مسکن", "nameEn": "Bank Maskan", "kind": "تخصصی", "site": "https://bank-maskan.ir", "aliases": ["مسکن"] },
-    { "id": "sanat-madan", "name": "بانک صنعت و معدن", "nameEn": "Bank Sanat va Madan", "kind": "تخصصی", "site": "https://bim.ir", "aliases": ["صنعت و معدن"] },
-    { "id": "tosee-saderat", "name": "بانک توسعه صادرات ایران", "nameEn": "Export Development Bank", "kind": "تخصصی", "site": "https://edbi.ir", "aliases": ["توسعه صادرات"] },
-    { "id": "tosee-taavon", "name": "بانک توسعه تعاون", "nameEn": "Bank Tose'e Ta'avon", "kind": "تخصصی", "site": "https://ttbank.ir", "aliases": ["توسعه تعاون"] },
-    { "id": "post", "name": "پست بانک ایران", "nameEn": "Post Bank Iran", "kind": "دولتی", "site": "https://postbank.ir", "aliases": ["پست بانک"] },
-    { "id": "eghtesad-novin", "name": "بانک اقتصاد نوین", "nameEn": "EN Bank", "kind": "خصوصی", "site": "https://enbank.ir", "aliases": ["اقتصاد نوین", "EN"] },
-    { "id": "parsian", "name": "بانک پارسیان", "nameEn": "Parsian Bank", "kind": "خصوصی", "site": "https://parsian-bank.ir", "aliases": ["پارسیان"] },
-    { "id": "pasargad", "name": "بانک پاسارگاد", "nameEn": "Bank Pasargad", "kind": "خصوصی", "site": "https://bpi.ir", "aliases": ["پاسارگاد"] },
-    { "id": "saman", "name": "بانک سامان", "nameEn": "Saman Bank", "kind": "خصوصی", "site": "https://sb24.ir", "aliases": ["سامان"] },
-    { "id": "karafarin", "name": "بانک کارآفرین", "nameEn": "Karafarin Bank", "kind": "خصوصی", "site": "https://karafarinbank.ir", "aliases": ["کارآفرین"] },
-    { "id": "sina", "name": "بانک سینا", "nameEn": "Sina Bank", "kind": "خصوصی", "site": "https://sinabank.ir", "aliases": ["سینا"] },
-    { "id": "shahr", "name": "بانک شهر", "nameEn": "Shahr Bank", "kind": "عمومی غیردولتی", "site": "https://shahr-bank.ir", "aliases": ["شهر"] },
-    { "id": "day", "name": "بانک دی", "nameEn": "Day Bank", "kind": "خصوصی", "site": "https://bank-day.ir", "aliases": ["دی"] },
-    { "id": "sarmayeh", "name": "بانک سرمایه", "nameEn": "Sarmayeh Bank", "kind": "خصوصی", "site": "https://sbank.ir", "aliases": ["سرمایه"] },
-    { "id": "refah", "name": "بانک رفاه کارگران", "nameEn": "Refah Bank", "kind": "دولتی", "site": "https://refah-bank.ir", "aliases": ["رفاه"] },
-    { "id": "ayandeh", "name": "بانک آینده", "nameEn": "Ayandeh Bank", "kind": "خصوصی", "site": "https://ba24.ir", "aliases": ["آینده", "شتاب"] },
-    { "id": "iran-zamin", "name": "بانک ایران زمین", "nameEn": "Iran Zamin Bank", "kind": "خصوصی", "site": "https://izbank.ir", "aliases": ["ایران زمین"] },
-    { "id": "gardeshgari", "name": "بانک گردشگری", "nameEn": "Tourism Bank", "kind": "خصوصی", "site": "https://tourismbank.ir", "aliases": ["گردشگری"] },
-    { "id": "middle-east", "name": "بانک خاورمیانه", "nameEn": "Middle East Bank", "kind": "خصوصی", "site": "https://mebank.ir", "aliases": ["خاورمیانه"] },
-    { "id": "mehr-iran", "name": "بانک قرض‌الحسنه مهر ایران", "nameEn": "Gharzolhasaneh Mehr Iran Bank", "kind": "قرض‌الحسنه", "site": "https://qmb.ir", "aliases": ["مهر ایران", "مهریار"] },
-    { "id": "resalat", "name": "بانک قرض‌الحسنه رسالت", "nameEn": "Gharzolhasaneh Resalat Bank", "kind": "قرض‌الحسنه", "site": "https://rqbank.ir", "aliases": ["رسالت"] },
-    { "id": "blubank", "name": "بلوبانک", "nameEn": "BluBank", "kind": "نئوبانک (سامان)", "site": "https://blubank.com", "aliases": ["بلو", "بلوبانک"] },
-    { "id": "vipad", "name": "ویپاد", "nameEn": "VIPad", "kind": "نئوبانک (پاسارگاد)", "site": "https://vipad.ir", "aliases": ["ویپاد", "وپاد"] },
-    { "id": "bam", "name": "بام (بانک ملی)", "nameEn": "Bam", "kind": "نئوبانک (ملی)", "site": "https://bam.ir", "aliases": ["بام"] },
-    { "id": "digipay", "name": "دیجی‌پی", "nameEn": "DigiPay", "kind": "فین‌تک پرداخت", "site": "https://digipay.ir", "aliases": ["دیجی پی"] },
-    { "id": "azkivam", "name": "ازکی‌وام", "nameEn": "AzkiVam", "kind": "فین‌تک لندتک", "site": "https://azkivam.com", "aliases": ["ازکی وام"] },
-    { "id": "cbi", "name": "بانک مرکزی جمهوری اسلامی ایران", "nameEn": "Central Bank of Iran", "kind": "نهاد ناظر", "site": "https://cbi.ir", "aliases": ["بانک مرکزی", "CBI"] },
-    { "id": "mellal", "name": "مؤسسه اعتباری ملل", "nameEn": "Mellal Credit Institution", "kind": "مؤسسه اعتباری", "site": "https://mellalbank.ir", "aliases": ["ملل", "عسکریه"] },
-    { "id": "noor", "name": "مؤسسه اعتباری نور", "nameEn": "Noor Credit Institution", "kind": "مؤسسه اعتباری", "site": "https://noorbank.ir", "aliases": ["نور"] }
+    {
+      "id": "azkivam",
+      "name": "ازکی‌وام",
+      "nameEn": "AzkiVam",
+      "kind": "فین‌تک لندتک",
+      "site": "https://azkivam.com",
+      "aliases": [
+        "ازکی وام"
+      ]
+    },
+    {
+      "id": "bam",
+      "name": "بام (بانک ملی)",
+      "nameEn": "Bam",
+      "kind": "نئوبانک (ملی)",
+      "site": "https://bam.ir",
+      "aliases": [
+        "بام"
+      ]
+    },
+    {
+      "id": "ayandeh",
+      "name": "بانک آینده",
+      "nameEn": "Ayandeh Bank",
+      "kind": "خصوصی",
+      "site": "https://ba24.ir",
+      "aliases": [
+        "آینده",
+        "شتاب"
+      ]
+    },
+    {
+      "id": "eghtesad-novin",
+      "name": "بانک اقتصاد نوین",
+      "nameEn": "EN Bank",
+      "kind": "خصوصی",
+      "site": "https://enbank.ir",
+      "aliases": [
+        "اقتصاد نوین",
+        "EN"
+      ]
+    },
+    {
+      "id": "iran-zamin",
+      "name": "بانک ایران زمین",
+      "nameEn": "Iran Zamin Bank",
+      "kind": "خصوصی",
+      "site": "https://izbank.ir",
+      "aliases": [
+        "ایران زمین"
+      ]
+    },
+    {
+      "id": "tejarat",
+      "name": "بانک تجارت",
+      "nameEn": "Bank Tejarat",
+      "kind": "دولتی",
+      "founded": 1358,
+      "site": "https://tejaratbank.ir",
+      "aliases": [
+        "تجارت"
+      ]
+    },
+    {
+      "id": "tosee-taavon",
+      "name": "بانک توسعه تعاون",
+      "nameEn": "Bank Tose'e Ta'avon",
+      "kind": "تخصصی",
+      "site": "https://ttbank.ir",
+      "aliases": [
+        "توسعه تعاون"
+      ]
+    },
+    {
+      "id": "tosee-saderat",
+      "name": "بانک توسعه صادرات ایران",
+      "nameEn": "Export Development Bank",
+      "kind": "تخصصی",
+      "site": "https://edbi.ir",
+      "aliases": [
+        "توسعه صادرات"
+      ]
+    },
+    {
+      "id": "middle-east",
+      "name": "بانک خاورمیانه",
+      "nameEn": "Middle East Bank",
+      "kind": "خصوصی",
+      "site": "https://mebank.ir",
+      "aliases": [
+        "خاورمیانه"
+      ]
+    },
+    {
+      "id": "day",
+      "name": "بانک دی",
+      "nameEn": "Day Bank",
+      "kind": "خصوصی",
+      "site": "https://bank-day.ir",
+      "aliases": [
+        "دی"
+      ]
+    },
+    {
+      "id": "refah",
+      "name": "بانک رفاه کارگران",
+      "nameEn": "Refah Bank",
+      "kind": "دولتی",
+      "site": "https://refah-bank.ir",
+      "aliases": [
+        "رفاه"
+      ]
+    },
+    {
+      "id": "saman",
+      "name": "بانک سامان",
+      "nameEn": "Saman Bank",
+      "kind": "خصوصی",
+      "site": "https://sb24.ir",
+      "aliases": [
+        "سامان"
+      ]
+    },
+    {
+      "id": "sarmayeh",
+      "name": "بانک سرمایه",
+      "nameEn": "Sarmayeh Bank",
+      "kind": "خصوصی",
+      "site": "https://sbank.ir",
+      "aliases": [
+        "سرمایه"
+      ]
+    },
+    {
+      "id": "sepah",
+      "name": "بانک سپه",
+      "nameEn": "Bank Sepah",
+      "kind": "دولتی",
+      "founded": 1304,
+      "site": "https://banksepah.ir",
+      "aliases": [
+        "سپه"
+      ]
+    },
+    {
+      "id": "sina",
+      "name": "بانک سینا",
+      "nameEn": "Sina Bank",
+      "kind": "خصوصی",
+      "site": "https://sinabank.ir",
+      "aliases": [
+        "سینا"
+      ]
+    },
+    {
+      "id": "shahr",
+      "name": "بانک شهر",
+      "nameEn": "Shahr Bank",
+      "kind": "عمومی غیردولتی",
+      "site": "https://shahr-bank.ir",
+      "aliases": [
+        "شهر"
+      ]
+    },
+    {
+      "id": "saderat",
+      "name": "بانک صادرات ایران",
+      "nameEn": "Bank Saderat Iran",
+      "kind": "دولتی",
+      "founded": 1331,
+      "site": "https://bsi.ir",
+      "aliases": [
+        "صادرات",
+        "صد"
+      ]
+    },
+    {
+      "id": "sanat-madan",
+      "name": "بانک صنعت و معدن",
+      "nameEn": "Bank Sanat va Madan",
+      "kind": "تخصصی",
+      "site": "https://bim.ir",
+      "aliases": [
+        "صنعت و معدن"
+      ]
+    },
+    {
+      "id": "resalat",
+      "name": "بانک قرض‌الحسنه رسالت",
+      "nameEn": "Gharzolhasaneh Resalat Bank",
+      "kind": "قرض‌الحسنه",
+      "site": "https://rqbank.ir",
+      "aliases": [
+        "رسالت"
+      ]
+    },
+    {
+      "id": "mehr-iran",
+      "name": "بانک قرض‌الحسنه مهر ایران",
+      "nameEn": "Gharzolhasaneh Mehr Iran Bank",
+      "kind": "قرض‌الحسنه",
+      "site": "https://qmb.ir",
+      "aliases": [
+        "مهر ایران",
+        "مهریار"
+      ]
+    },
+    {
+      "id": "cbi",
+      "name": "بانک مرکزی جمهوری اسلامی ایران",
+      "nameEn": "Central Bank of Iran",
+      "kind": "نهاد ناظر",
+      "site": "https://cbi.ir",
+      "aliases": [
+        "بانک مرکزی",
+        "CBI"
+      ]
+    },
+    {
+      "id": "maskan",
+      "name": "بانک مسکن",
+      "nameEn": "Bank Maskan",
+      "kind": "تخصصی",
+      "site": "https://bank-maskan.ir",
+      "aliases": [
+        "مسکن"
+      ]
+    },
+    {
+      "id": "mellat",
+      "name": "بانک ملت",
+      "nameEn": "Bank Mellat",
+      "kind": "دولتی",
+      "founded": 1359,
+      "site": "https://bankmellat.ir",
+      "aliases": [
+        "ملت"
+      ]
+    },
+    {
+      "id": "melli",
+      "name": "بانک ملی ایران",
+      "nameEn": "Bank Melli Iran",
+      "kind": "دولتی",
+      "founded": 1307,
+      "branches": 3200,
+      "site": "https://bmi.ir",
+      "aliases": [
+        "ملی",
+        "بام"
+      ]
+    },
+    {
+      "id": "parsian",
+      "name": "بانک پارسیان",
+      "nameEn": "Parsian Bank",
+      "kind": "خصوصی",
+      "site": "https://parsian-bank.ir",
+      "aliases": [
+        "پارسیان"
+      ]
+    },
+    {
+      "id": "pasargad",
+      "name": "بانک پاسارگاد",
+      "nameEn": "Bank Pasargad",
+      "kind": "خصوصی",
+      "site": "https://bpi.ir",
+      "aliases": [
+        "پاسارگاد"
+      ]
+    },
+    {
+      "id": "karafarin",
+      "name": "بانک کارآفرین",
+      "nameEn": "Karafarin Bank",
+      "kind": "خصوصی",
+      "site": "https://karafarinbank.ir",
+      "aliases": [
+        "کارآفرین"
+      ]
+    },
+    {
+      "id": "keshavarzi",
+      "name": "بانک کشاورزی",
+      "nameEn": "Bank Keshavarzi",
+      "kind": "دولتی",
+      "site": "https://agri-bank.com",
+      "aliases": [
+        "کشاورزی"
+      ]
+    },
+    {
+      "id": "gardeshgari",
+      "name": "بانک گردشگری",
+      "nameEn": "Tourism Bank",
+      "kind": "خصوصی",
+      "site": "https://tourismbank.ir",
+      "aliases": [
+        "گردشگری"
+      ]
+    },
+    {
+      "id": "blubank",
+      "name": "بلوبانک",
+      "nameEn": "BluBank",
+      "kind": "نئوبانک (سامان)",
+      "site": "https://blubank.com",
+      "aliases": [
+        "بلو",
+        "بلوبانک"
+      ]
+    },
+    {
+      "id": "digipay",
+      "name": "دیجی‌پی",
+      "nameEn": "DigiPay",
+      "kind": "فین‌تک پرداخت",
+      "site": "https://digipay.ir",
+      "aliases": [
+        "دیجی پی"
+      ]
+    },
+    {
+      "aliases": [
+        "آگاه",
+        "یاقوت"
+      ],
+      "id": "agah",
+      "kind": "سبدگردان و کارگزاری بورسی",
+      "name": "سبدگردان آگاه",
+      "nameEn": "Agah Asset Management",
+      "site": "https://agah.com"
+    },
+    {
+      "aliases": [
+        "فارابی",
+        "لبخند"
+      ],
+      "id": "farabi",
+      "kind": "سبدگردان و نهاد مالی بورسی",
+      "name": "سبدگردان فارابی",
+      "nameEn": "Farabi Asset Management",
+      "site": "https://irfarabi.com"
+    },
+    {
+      "id": "mellal",
+      "name": "مؤسسه اعتباری ملل",
+      "nameEn": "Mellal Credit Institution",
+      "kind": "مؤسسه اعتباری",
+      "site": "https://mellalbank.ir",
+      "aliases": [
+        "ملل",
+        "عسکریه"
+      ]
+    },
+    {
+      "id": "noor",
+      "name": "مؤسسه اعتباری نور",
+      "nameEn": "Noor Credit Institution",
+      "kind": "مؤسسه اعتباری",
+      "site": "https://noorbank.ir",
+      "aliases": [
+        "نور"
+      ]
+    },
+    {
+      "aliases": [
+        "ترنج",
+        "افران"
+      ],
+      "id": "toranj",
+      "kind": "مشاور سرمایه‌گذاری و سبدگردان",
+      "name": "مشاور سرمایه‌گذاری ترنج",
+      "nameEn": "Toranj Investment Advisory",
+      "site": "https://toranjamc.com"
+    },
+    {
+      "id": "vipad",
+      "name": "ویپاد",
+      "nameEn": "VIPad",
+      "kind": "نئوبانک (پاسارگاد)",
+      "site": "https://vipad.ir",
+      "aliases": [
+        "ویپاد",
+        "وپاد"
+      ]
+    },
+    {
+      "id": "post",
+      "name": "پست بانک ایران",
+      "nameEn": "Post Bank Iran",
+      "kind": "دولتی",
+      "site": "https://postbank.ir",
+      "aliases": [
+        "پست بانک"
+      ]
+    },
+    {
+      "aliases": [
+        "سهم آشنا",
+        "امین آشنا"
+      ],
+      "id": "ashna",
+      "kind": "کارگزاری و تأمین سرمایه",
+      "name": "گروه مالی سهم آشنا",
+      "nameEn": "Sahm Ashena Financial Group",
+      "site": "https://ashena.ir"
+    },
+    {
+      "aliases": [
+        "کاریزما",
+        "کارا"
+      ],
+      "id": "charisma",
+      "kind": "گروه مالی و سبدگردان بورسی",
+      "name": "گروه مالی کاریزما",
+      "nameEn": "Charisma Financial Group",
+      "site": "https://charisma.ir"
+    }
   ]
 }

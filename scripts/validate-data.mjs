@@ -15,7 +15,7 @@ import { daysSince, today } from '../tools/lib/parse.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = path.join(ROOT, 'data');
 
-const CATEGORIES = new Set(['deposits', 'credit', 'loans', 'loyalty']);
+const CATEGORIES = new Set(['deposits', 'credit', 'loans', 'loyalty', 'funds']);
 const CONFIDENCE = new Set(['high', 'medium', 'low']);
 const ID_RE = /^[a-z0-9][a-z0-9-]*$/;
 const ISO_RE = /^\d{4}-\d{2}-\d{2}$/;
