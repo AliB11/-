@@ -19,6 +19,66 @@ const CATEGORY_META = {
 
 export { CATEGORY_META };
 
+/**
+ * نوع عقد تسهیلات — پایه تفکیک منطقی محصولات اعتباری.
+ *
+ * در نظام بانکی ایران تسهیلات بر پایه سه خانواده عقد منعقد می‌شود:
+ *   • قرض‌الحسنه — کارمزد یک‌بار روی اصل، بدون سود مرکب (rateKind: 'fee').
+ *   • عقود مشارکتی — مضاربه، مشارکت مدنی و مانند آن‌ها.
+ *   • عقود غیرمشارکتی (مبادله‌ای) — مرابحه، مزارعه، اجاره و مانند آن‌ها.
+ *
+ * فیلد اختیاری «contractType» در داده، نوع عقد را صریح ثبت می‌کند. در نبود
+ * آن، نوع عقد به‌صورت قطعی از خود رکورد استنتاج می‌شود (deriveContractType)
+ * تا رکوردهای تازه‌وارد هم بدون دخالت خط لوله تفکیک‌پذیر بمانند.
+ */
+export const CONTRACT_META = {
+  qarz: { label: 'قرض‌الحسنه', short: 'قرض‌الحسنه', hint: 'کارمزد یک‌بار روی کل اصل؛ بدون سود مرکب' },
+  'non-partnership': { label: 'عقود غیرمشارکتی (مبادله‌ای)', short: 'غیرمشارکتی', hint: 'مرابحه، مزارعه، اجاره و مانند آن‌ها' },
+  partnership: { label: 'عقود مشارکتی', short: 'مشارکتی', hint: 'مضاربه و مشارکت' },
+  unknown: { label: 'نامشخص', short: 'نامشخص', hint: 'نوع عقد در داده ثبت نشده است' },
+};
+
+export const CONTRACT_KEYS = Object.keys(CONTRACT_META);
+
+/** دسته‌هایی که «نوع عقد» برای آن‌ها معنا دارد (محصولات اعتباری) */
+export const isCreditCategory = (category) => category === 'loans' || category === 'credit';
+
+/**
+ * استنتاج قطعی نوع عقد از رکورد.
+ *
+ * ترتیب قواعد اهمیت دارد:
+ *   ۱. rateKind 'fee' → قطعاً قرض‌الحسنه (این تفکیک را موتور مالی هم همین‌طور می‌داند).
+ *   ۲. ذکر صریح قرض‌الحسنه در متن + نرخ پایین (≤۱۰٪) → قرض‌الحسنه؛
+ *      پوشش رکوردهایی که rateKind اشتباه ثبت شده ولی ماهیت عقد روشن است.
+ *   ۳. تسهیلات سودمحور: ذکر صریح مشارکت/مضاربه → مشارکتی؛ وگرنه غیرمشارکتی.
+ *      تسهیلات سودمحور در ایران بر پایه عقد مبادله‌ای یا مشارکتی بسته می‌شود و
+ *      غلبه عملی و سقف‌های مصوب (۲۳٪ غیرمشارکتی در برابر ۲۴٪ مشارکتی) نشان
+ *      می‌دهد که در نبود ذکر صریح، مبنای معقول عقد مبادله‌ای (غیرمشارکتی) است.
+ *   ۴. بقیه (غیرنرخ‌دار و…) → نامشخص؛ ادعایی نمی‌شود.
+ *
+ * @param {object} p محصول نرمال‌شده
+ * @returns {'qarz'|'non-partnership'|'partnership'|'unknown'}
+ */
+export function deriveContractType(p) {
+  const rate = Number(p?.rate) || 0;
+  if (p?.rateKind === 'fee') return 'qarz';
+
+  const text = [
+    p?.product ?? '',
+    p?.desc ?? '',
+    Array.isArray(p?.tags) ? p.tags.join(' ') : '',
+    p?.extra?.loanType ?? '',
+  ].join(' ');
+
+  if (/قرض[\s\u200c]*الحسنه/.test(text) && rate > 0 && rate <= 10) return 'qarz';
+
+  if (p?.rateKind === 'profit' && rate > 0) {
+    return /مشارکت|مضاربه/.test(text) ? 'partnership' : 'non-partnership';
+  }
+
+  return 'unknown';
+}
+
 export const store = {
   products: [],
   banks: [],
@@ -35,6 +95,7 @@ export const store = {
     channel: 'all',
     collateral: 'all',
     confidence: 'all',
+    contract: 'all',
     category: 'deposits',
     sort: 'score',
     onlyFresh: false,
@@ -51,7 +112,7 @@ export const store = {
 /* ---------- بارگذاری داده ---------- */
 
 function normalizeProduct(raw, index) {
-  return {
+  const product = {
     id: raw.id || `product-${index}`,
     bank: raw.bank || 'نامشخص',
     bankId: raw.bankId || null,
@@ -87,6 +148,10 @@ function normalizeProduct(raw, index) {
     source: raw.source || null,
     extra: raw.extra || {},
   };
+
+  // نوع عقد: مقدار صریح داده اولویت دارد و در نبود آن از خود رکورد استنتاج می‌شود.
+  product.contractType = CONTRACT_META[raw.contractType] ? raw.contractType : deriveContractType(product);
+  return product;
 }
 
 const numOr = (v, fallback) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
@@ -164,6 +229,9 @@ export async function loadData() {
   if (savedFilters && typeof savedFilters === 'object') {
     Object.assign(store.filters, savedFilters);
     if (!CATEGORY_META[store.filters.category]) store.filters.category = 'deposits';
+    if (store.filters.contract !== 'all' && !CONTRACT_META[store.filters.contract]) {
+      store.filters.contract = 'all';
+    }
   }
 
   recalculate();
@@ -226,6 +294,12 @@ export function filtered(opts = {}) {
   const f = store.filters;
   const q = normSearch(f.query);
 
+  // «کنترل‌شده بودن» یک رکورد یعنی خط لوله آن را دیده باشد — ملاک، جدیدترین
+  // تاریخ بازبینی (lastSeen) یا به‌روزرسانی منبع (lastUpdated) است. اگر فقط
+  // lastUpdated ملاک گرفته شود، رکوردی که دیروز واکشی شده ولی صفحه منبعش
+  // ماه‌هاست دست‌نخورده مانده، غیابی «فقط کنترل‌شده» محسوب می‌شود.
+  const checkedAge = (p) => daysSince(mostRecent(p.lastUpdated, p.lastSeen));
+
   let rows = store.products.filter((p) => {
     if (!opts.ignoreCategory && p.category !== f.category) return false;
     if (!matchesQuery(p, q)) return false;
@@ -236,14 +310,17 @@ export function filtered(opts = {}) {
     if (f.collateral === 'none' && !['none', 'credit-score'].includes(p.collateralKind)) return false;
     if (f.collateral === 'no-guarantor' && p.collateralKind === 'guarantor') return false;
     if (f.confidence !== 'all' && p.confidence !== f.confidence) return false;
-    if (f.onlyFresh && daysSince(p.lastUpdated) > 60) return false;
+    // نوع عقد فقط برای محصولات اعتباری معنا دارد؛ در سایر دسته‌ها این فیلتر
+    // خنثی است تا انتخاب کاربر هنگام جابه‌جایی بین دسته‌ها نتایج را خالی نکند.
+    if (isCreditCategory(f.category) && f.contract !== 'all' && p.contractType !== f.contract) return false;
+    if (f.onlyFresh && checkedAge(p) > 60) return false;
     if (f.onlyStale && !p.stale) return false;
     return true;
   });
 
   const sorters = {
     score: (a, b) => scoreOf(b.id) - scoreOf(a.id),
-    fresh: (a, b) => daysSince(a.lastUpdated) - daysSince(b.lastUpdated),
+    fresh: (a, b) => checkedAge(a) - checkedAge(b),
     rate: (a, b) => (b.rate || 0) - (a.rate || 0),
     speed: (a, b) => b.speed - a.speed,
     digital: (a, b) => b.digital - a.digital,
@@ -253,6 +330,18 @@ export function filtered(opts = {}) {
 
   rows = [...rows].sort(sorters[f.sort] ?? sorters.score);
   return rows;
+}
+
+/** شمار محصولات هر نوع عقد در یک دسته — برای شمارنده گزینه‌های فیلتر */
+export function contractCounts(category) {
+  const counts = { all: 0 };
+  for (const k of CONTRACT_KEYS) counts[k] = 0;
+  for (const p of store.products) {
+    if (p.category !== category) continue;
+    counts.all += 1;
+    counts[p.contractType] = (counts[p.contractType] ?? 0) + 1;
+  }
+  return counts;
 }
 
 /** فهرست بانک‌های موجود در داده فعلی */
