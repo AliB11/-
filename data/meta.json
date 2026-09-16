@@ -1,24 +1,26 @@
 {
-  "autoDiscovered": 120,
+  "autoDiscovered": 121,
   "counts": {
     "credit": 52,
     "deposits": 17,
-    "loans": 100,
+    "loans": 101,
     "loyalty": 10,
-    "total": 179
+    "total": 180
   },
-  "lastRun": "2026-09-15T17:41:02.079Z",
-  "lastRunDurationMs": 96494,
+  "lastRun": "2026-09-16T08:44:38.621Z",
+  "lastRunDurationMs": 102495,
   "lastRunMode": "full",
   "sources": [
     {
       "attempted": 120,
       "discovered": 550,
       "failures": 0,
-      "ms": 3792,
+      "fresh": 120,
+      "ms": 12996,
       "name": "rade.ir",
       "ok": true,
-      "parsed": 120
+      "parsed": 120,
+      "rotated": 0
     },
     {
       "detail": [
@@ -35,122 +37,122 @@
           "url": "https://www.cbi.ir/simplelist/1466.aspx"
         },
         {
-          "error": "دریافت https://bmi.ir/fa/deposit ناموفق بود پس از 2 تلاش: HTTP 403 Forbidden",
+          "error": "HTTP 403 Forbidden (HTTP 403) — https://bmi.ir/fa/deposit",
           "id": "melli-deposit",
           "ok": false,
           "url": "https://bmi.ir/fa/deposit"
         },
         {
-          "error": "دریافت https://bankmellat.ir/deposits ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://bankmellat.ir/deposits",
           "id": "mellat-deposit",
           "ok": false,
           "url": "https://bankmellat.ir/deposits"
         },
         {
-          "error": "دریافت https://tejaratbank.ir/دپارتمان-حساب-سپرده ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://tejaratbank.ir/دپارتمان-حساب-سپرده",
           "id": "tejarat-deposit",
           "ok": false,
           "url": "https://tejaratbank.ir/دپارتمان-حساب-سپرده"
         },
         {
-          "error": "دریافت https://www.bsi.ir/Services/Deposits ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://www.bsi.ir/Services/Deposits",
           "id": "saderat-deposit",
           "ok": false,
           "url": "https://www.bsi.ir/Services/Deposits"
         },
         {
-          "error": "دریافت https://banksepah.ir/سپرده ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://banksepah.ir/سپرده",
           "id": "sepah-deposit",
           "ok": false,
           "url": "https://banksepah.ir/سپرده"
         },
         {
-          "error": "دریافت https://www.enbank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://www.enbank.ir/",
           "id": "eghtesad-novin",
           "ok": false,
           "url": "https://www.enbank.ir/"
         },
         {
-          "error": "دریافت https://parsian-bank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://parsian-bank.ir/",
           "id": "parsian",
           "ok": false,
           "url": "https://parsian-bank.ir/"
         },
         {
-          "error": "دریافت https://www.bpi.ir/ ناموفق بود پس از 2 تلاش: HTTP 403 Forbidden",
+          "error": "HTTP 403 Forbidden (HTTP 403) — https://www.bpi.ir/",
           "id": "pasargad",
           "ok": false,
           "url": "https://www.bpi.ir/"
         },
         {
-          "error": "دریافت https://www.sb24.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://www.sb24.ir/",
           "id": "saman",
           "ok": false,
           "url": "https://www.sb24.ir/"
         },
         {
-          "error": "دریافت https://www.refah-bank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://www.refah-bank.ir/",
           "id": "refah",
           "ok": false,
           "url": "https://www.refah-bank.ir/"
         },
         {
-          "error": "دریافت https://www.bank-maskan.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://www.bank-maskan.ir/",
           "id": "maskan",
           "ok": false,
           "url": "https://www.bank-maskan.ir/"
         },
         {
-          "error": "دریافت https://www.karafarinbank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://www.karafarinbank.ir/",
           "id": "karafarin",
           "ok": false,
           "url": "https://www.karafarinbank.ir/"
         },
         {
-          "error": "دریافت https://www.shahr-bank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://www.shahr-bank.ir/",
           "id": "shahr",
           "ok": false,
           "url": "https://www.shahr-bank.ir/"
         },
         {
-          "error": "دریافت https://www.sinabank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://www.sinabank.ir/",
           "id": "sina",
           "ok": false,
           "url": "https://www.sinabank.ir/"
         },
         {
-          "error": "دریافت https://www.qmb.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://www.qmb.ir/",
           "id": "mehr-iran",
           "ok": false,
           "url": "https://www.qmb.ir/"
         },
         {
-          "error": "دریافت https://www.rqbank.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://www.rqbank.ir/",
           "id": "resalat",
           "ok": false,
           "url": "https://www.rqbank.ir/"
         },
         {
-          "error": "دریافت https://blubank.com/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://blubank.com/",
           "id": "blubank",
           "ok": false,
           "url": "https://blubank.com/"
         },
         {
-          "error": "دریافت https://vipad.ir/ ناموفق بود پس از 2 تلاش: fetch failed",
+          "error": "شبکه در دسترس نبود — https://vipad.ir/",
           "id": "vipad",
           "ok": false,
           "url": "https://vipad.ir/"
         }
       ],
-      "ms": 85848,
+      "ms": 85904,
       "name": "bank-sites",
       "ok": true,
       "reachable": 2,
       "targets": 20
     },
     {
-      "ms": 6825,
+      "ms": 3551,
       "name": "macro-indicators",
       "ok": true,
       "sourcesOk": 2,
