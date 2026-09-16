@@ -213,7 +213,7 @@ export function mergeProducts(existing, incoming) {
   }
 
   const merged = [...byId.values()].sort((a, b) => {
-    const order = { deposits: 0, credit: 1, loans: 2, loyalty: 3 };
+    const order = { deposits: 0, credit: 1, loans: 2, loyalty: 3, funds: 4 };
     const c = (order[a.category] ?? 9) - (order[b.category] ?? 9);
     if (c !== 0) return c;
     return String(a.id).localeCompare(String(b.id));

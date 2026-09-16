@@ -55,6 +55,7 @@
   --cat-credit: #7c8cff;
   --cat-loans: #f6c66b;
   --cat-loyalty: #ff8fb0;
+  --cat-funds: #00d2ff;
 
   /* تایپوگرافی */
   --font-sans: 'Vazirmatn', 'IRANSansX', 'Segoe UI', Tahoma, system-ui, sans-serif;
@@ -460,6 +461,7 @@ a:hover { color: #7bffd0; text-decoration: underline; }
 .chip--cat-credit { background: rgba(124, 140, 255, 0.12); border-color: rgba(124, 140, 255, 0.3); color: #d3d9ff; }
 .chip--cat-loans { background: rgba(246, 198, 107, 0.12); border-color: rgba(246, 198, 107, 0.3); color: #ffe6b5; }
 .chip--cat-loyalty { background: rgba(255, 143, 176, 0.12); border-color: rgba(255, 143, 176, 0.3); color: #ffd3e0; }
+.chip--cat-funds { background: rgba(0, 210, 255, 0.12); border-color: rgba(0, 210, 255, 0.3); color: #7de8ff; }
 
 /* ---------- ۸. بخش قهرمان ---------- */
 .hero {

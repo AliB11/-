@@ -127,6 +127,20 @@ test('راه‌انداز سامانه روی پوسته واقعی بدون خ�
   // ۴) کلیک روی برگه «تسهیلات» از مسیر واقعی رویداد، داده را عوض می‌کند
   const depositsIds = app.filtered().map((p) => p.id).sort();
 
+  // کلیک روی برگه «صندوق‌های درآمد ثابت» (دسته جدید)
+  const fundsTab = new Element('button');
+  fundsTab.setAttribute('data-action', 'category');
+  fundsTab.setAttribute('data-key', 'funds');
+  doc.body.append(fundsTab);
+
+  fundsTab.dispatchEvent(makeEvent('click', { target: fundsTab }));
+  timers.flushTimers();
+
+  assert.equal(app.store.filters.category, 'funds', 'تغییر به دسته صندوق‌ها اعمال نشد');
+  const fundRows = app.filtered();
+  assert.ok(fundRows.length > 0, 'دسته صندوق‌های درآمد ثابت خالی است');
+  assert.ok(fundRows.every((p) => p.category === 'funds'), 'نتایج باید همگی در دسته funds باشند');
+
   // عنصر دقیقاً مانند چیزی که views.js تولید می‌کند ساخته می‌شود
   const loansTab = new Element('button');
   loansTab.setAttribute('data-action', 'category');

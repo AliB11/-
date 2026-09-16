@@ -65,7 +65,8 @@
             "deposits",
             "credit",
             "loans",
-            "loyalty"
+            "loyalty",
+            "funds"
           ]
         },
         "subcategory": {

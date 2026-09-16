@@ -12,6 +12,7 @@ import { DEFAULT_WEIGHTS, scoreProduct, PRESETS, mostRecent } from './score.js';
 
 const CATEGORY_META = {
   deposits: { title: 'منابعی و سپرده', short: 'سپرده', icon: '💰', color: '#2fe0a8', desc: 'سپرده‌ها، گواهی‌ها و طرح‌های سرمایه‌گذاری' },
+  funds: { title: 'صندوق‌های درآمد ثابت', short: 'درآمد ثابت', icon: '📈', color: '#00d2ff', desc: 'صندوق‌های ETF و صدور/ابطالی بورسی و بانکی با سود روزشمار' },
   credit: { title: 'اعتباری و کارت', short: 'اعتبار', icon: '💳', color: '#7c8cff', desc: 'کارت اعتباری، خرید اقساطی و وام دیجیتال' },
   loans: { title: 'تسهیلاتی و وام', short: 'تسهیلات', icon: '🏦', color: '#f6c66b', desc: 'وام‌های حمایتی، قرض‌الحسنه و تسهیلات خرد' },
   loyalty: { title: 'امتیازی و باشگاه', short: 'امتیاز', icon: '⭐', color: '#ff8fb0', desc: 'باشگاه مشتریان، پاداش و خدمات دیجیتال' },

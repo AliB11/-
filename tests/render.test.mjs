@@ -65,7 +65,7 @@ test('قالب فیلترها و برگه‌های دسته‌بندی ساخت�
   assert.ok(filters.includes('data-filter="bank"'));
   assert.ok(filters.includes('data-weight="benefit"'));
   const tabs = views.tabsHTML();
-  for (const cat of ['deposits', 'credit', 'loans', 'loyalty']) {
+  for (const cat of ['deposits', 'funds', 'credit', 'loans', 'loyalty']) {
     assert.ok(tabs.includes(`data-key="${cat}"`), `دسته ${cat} باید در برگه‌ها باشد`);
   }
 });
@@ -90,7 +90,7 @@ test('فیلترهای ذخیره‌شده پس از بازخوانی صفحه �
 });
 
 test('کارت محصول برای همه رکوردها بدون خطا ساخته می‌شود', () => {
-  for (const category of ['deposits', 'credit', 'loans', 'loyalty']) {
+  for (const category of ['deposits', 'funds', 'credit', 'loans', 'loyalty']) {
     store.store.filters.category = category;
     const rows = store.filtered();
     assert.ok(rows.length > 0, `دسته ${category} باید محصول داشته باشد`);
