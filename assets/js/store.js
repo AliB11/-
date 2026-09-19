@@ -112,7 +112,7 @@ export const store = {
 
 /* ---------- بارگذاری داده ---------- */
 
-function normalizeProduct(raw, index) {
+export function normalizeProduct(raw, index) {
   const product = {
     id: raw.id || `product-${index}`,
     bank: raw.bank || 'نامشخص',
@@ -146,6 +146,7 @@ function normalizeProduct(raw, index) {
     stale: raw.stale === true,
     lastUpdated: raw.lastUpdated || null,
     lastSeen: raw.lastSeen || null,
+    lastVerified: raw.lastVerified || null,
     source: raw.source || null,
     extra: raw.extra || {},
   };
@@ -178,7 +179,7 @@ function fromBundle() {
  */
 async function fetchFresh(baseGeneratedAt) {
   try {
-    const res = await fetch('data/products.json', { cache: 'no-store' });
+    const res = await fetch(`data/products.json?_t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) return null;
     const json = await res.json();
     if (!json?.products?.length) return null;
@@ -186,6 +187,41 @@ async function fetchFresh(baseGeneratedAt) {
     return json;
   } catch {
     return null;
+  }
+}
+
+/** بازخوانی اجباری آخرین نسخه داده‌ها از مخزن با شکستن حافظه نهان */
+export async function reloadFreshData() {
+  try {
+    const res = await fetch(`data/products.json?_t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) return { ok: false, error: `پاسخ سرور: ${res.status}` };
+    const json = await res.json();
+    if (!json?.products?.length) return { ok: false, error: 'داده فاقد محصولات معتبر است.' };
+
+    store.products = json.products.map(normalizeProduct);
+    if (json.counts && store.meta) {
+      store.meta.counts = json.counts;
+    }
+    if (json.generatedAt && store.meta) {
+      store.meta.generatedAt = json.generatedAt;
+      store.meta.lastRun = json.generatedAt;
+      store.meta.loadSource = 'json';
+    }
+
+    try {
+      const indRes = await fetch(`data/indicators.json?_t=${Date.now()}`, { cache: 'no-store' });
+      if (indRes.ok) {
+        const indJson = await indRes.json();
+        if (indJson?.inflationAnnual) store.indicators = indJson;
+      }
+    } catch {
+      // استفاده از شاخص‌های موجود
+    }
+
+    recalculate();
+    return { ok: true, count: store.products.length };
+  } catch (err) {
+    return { ok: false, error: err.message };
   }
 }
 

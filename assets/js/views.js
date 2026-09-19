@@ -14,7 +14,7 @@ import {
 } from './store.js';
 import { scoreTone, explainScore, WEIGHT_META, WEIGHT_KEYS } from './score.js';
 import { scoreRing, donut, rateLadder, compareBars, freshnessGrid } from './charts.js';
-import { loanSummary, realRate, scheduleFor, scheduleLegacy } from './finance.js';
+import { loanSummary, realRate, scheduleFor, scheduleLegacy, installmentInflationTrajectory } from './finance.js';
 
 const confChip = {
   high: ['chip chip--good', 'منبع تأییدشده'],
@@ -898,7 +898,47 @@ export function detailHTML(p) {
                   نرخ مؤثر با احتساب کارمزد کسرشده از اصل محاسبه می‌شود و از نرخ اسمی بالاتر است.
                   توجه: این عدد هزینه‌های جانبی مانند بیمه، کارمزد ضامن و هزینه فرصت سپرده را در بر نمی‌گیرد،
                   بنابراین کف هزینه واقعی است نه سقف آن.`}
-           </p>`
+           </p>
+           ${
+             inflation != null && summaryFinance.standard.installment > 0
+               ? (() => {
+                   const trajectory = installmentInflationTrajectory(
+                     summaryFinance.standard.installment,
+                     summaryFinance.months,
+                     inflation,
+                   );
+                   if (trajectory.length <= 1) return '';
+                   return `
+                     <div class="section-title">شبیه‌ساز ذوب تورمی اقساط (کاهش بار واقعی بدهی)</div>
+                     <div class="spec-grid">
+                       ${trajectory
+                         .map(
+                           (t) => `
+                         <div class="spec">
+                           <span class="k">سال ${fa(t.year)} (${fa(t.erosionPercent)}٪ افت بار قسط)</span>
+                           <span class="v num" style="color:var(--brand)">${faToman(t.realPurchasingPower)}</span>
+                         </div>`,
+                         )
+                         .join('')}
+                     </div>
+                     <p style="font-size:var(--fs-3xs);color:var(--text-4);margin-block-start:var(--sp-1);line-height:1.9">
+                       با توجه به تورم سالانه ${faPercent(inflation)}، ارزش واقعی قسط اسمی ${faToman(summaryFinance.standard.installment)} به مرور زمان کاهش می‌یابد.
+                       در سال ${fa(trajectory[trajectory.length - 1].year)}، ارزش قدرت خرید این قسط معادل تنها ${faToman(trajectory[trajectory.length - 1].realPurchasingPower)} خواهد بود (${fa(trajectory[trajectory.length - 1].erosionPercent)}٪ افت بار پرداخت به سود وام‌گیرنده).
+                     </p>
+                   `;
+                 })()
+               : ''
+           }`
+        : ''
+    }
+    ${
+      p.collateralKind === 'deposit-block'
+        ? `<div class="spec" style="border-color:var(--danger);background:rgba(255,107,129,0.08);margin-block:var(--sp-3)">
+             <span class="k" style="color:var(--danger);font-weight:bold">⚠️ هشدار تله مسدودی سپرده</span>
+             <span class="v" style="font-size:var(--fs-3xs);color:var(--text-2);line-height:1.9">
+               این تسهیلات نیازمند مسدودسازی سپرده نزد بانک است. با توجه به تورم بالا و عدم پرداخت سود متناسب به سپرده مسدودی، هزینه فرصت خواب پول باعث می‌شود نرخ مؤثر واقعی این وام به مراتب از نرخ اسمی اعلامی بیشتر تمام شود.
+             </span>
+           </div>`
         : ''
     }
   </div>
@@ -963,6 +1003,41 @@ export function dataModalHTML() {
             اطلاعات اجرای خط لوله در این بارگذاری موجود نیست. پس از نخستین اجرای خودکار، وضعیت هر منبع اینجا نمایش داده می‌شود.
           </p>`
     }
+
+    <div class="section-title">به‌روزرسانی و همگام‌سازی زنده</div>
+    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--rd-md);padding:var(--sp-3);margin-block-end:var(--sp-4)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);flex-wrap:wrap">
+        <div>
+          <div style="font-weight:700;font-size:var(--fs-sm);color:var(--text-1);margin-block-end:2px">استعلام فوری و بازخوانی آخرین داده‌ها</div>
+          <div style="font-size:var(--fs-2xs);color:var(--text-3);line-height:1.7">
+            دریافت تازه‌ترین نرخ‌ها، محصولات جدید بانک‌ها، ممیزی ناهنجاری‌ها و بازسازی رتبه‌بندی.
+          </div>
+        </div>
+        <button class="btn btn--primary btn--sm" type="button" data-action="sync-data-now">
+          <span class="refresh-icon" aria-hidden="true">↻</span> استعلام و همگام‌سازی
+        </button>
+      </div>
+    </div>
+
+    <div class="section-title">سازوکار ممیزی هفتگی و درون‌ریزی داده</div>
+    <div class="spec-grid" style="margin-block-end:var(--sp-3)">
+      <div class="spec">
+        <span class="k">پایش هفتگی خودکار</span>
+        <span class="v" style="color:var(--brand)">فعال (زمان‌بندی دوره‌ای)</span>
+      </div>
+      <div class="spec">
+        <span class="k">ممیزی رکوردهای پنج‌گانه</span>
+        <span class="v">سپرده، صندوق، تسهیلات، کارت، امتیاز</span>
+      </div>
+      <div class="spec">
+        <span class="k">فرمان همگام‌سازی هفتگی</span>
+        <span class="v"><code>npm run sync:weekly</code></span>
+      </div>
+      <div class="spec">
+        <span class="k">درون‌ریزی خروجی سفارشی</span>
+        <span class="v"><code>sync:weekly --input=&lt;فایل&gt;</code></span>
+      </div>
+    </div>
 
     <div class="section-title">بارگذاری داده دستی</div>
     <p style="font-size:var(--fs-2xs);color:var(--text-3);line-height:1.95;margin-block-end:var(--sp-3)">

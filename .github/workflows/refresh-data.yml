@@ -15,6 +15,11 @@ on:
         required: false
         default: '120'
         type: string
+      mode:
+        description: 'حالت اجرا (daily یا weekly برای ممیزی جامع هفتگی)'
+        required: false
+        default: 'daily'
+        type: string
       dry_run:
         description: 'اجرای آزمایشی بدون نوشتن داده'
         required: false
@@ -171,6 +176,7 @@ jobs:
           path: |
             collect.log
             data/meta.json
+            data/weekly-report.json
           if-no-files-found: warn
           retention-days: 14
 

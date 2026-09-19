@@ -350,6 +350,22 @@ a:hover { color: #7bffd0; text-decoration: underline; }
 
 .topbar-actions { margin-inline-start: auto; display: flex; align-items: center; gap: var(--sp-2); }
 
+.refresh-icon {
+  display: inline-block;
+  font-size: 1.1em;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.refresh-icon.is-spinning {
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .live-dot {
   width: 7px; height: 7px;
   border-radius: 50%;

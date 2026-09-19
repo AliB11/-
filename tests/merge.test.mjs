@@ -521,3 +521,82 @@ test('رکورد خودکار با محتوای یکسان، «به‌روزشد
   assert.equal(changed.stats.updated, 1, 'تغییر واقعی باید ثبت شود');
   assert.equal(changed.merged[0].extra.note, 'تغییر کرد');
 });
+
+test('محصول جدید بانکی پس از به‌روزرسانی در کل چرخه سامانه پوشش داده می‌شود', async () => {
+  const { scoreProduct } = await import('../assets/js/score.js');
+  const { normalizeProduct } = await import('../assets/js/store.js');
+
+  const existingProducts = [
+    {
+      id: 'existing-1',
+      bank: 'بانک ملت',
+      product: 'تسهیلات فرابانک',
+      category: 'loans',
+      rate: 23,
+      maxAmount: 200_000_000,
+      termMonths: 36,
+      autoDiscovered: true,
+      lastUpdated: '2026-09-01',
+    },
+  ];
+
+  // محصول کاملاً جدیدی که یک بانک به‌تازگی عرضه کرده است
+  const newlyIntroducedProduct = {
+    id: 'rade-99901',
+    bank: 'بانک خاورمیانه',
+    product: 'طرح اعتباری نخبگان',
+    category: 'loans',
+    rate: 18,
+    rateKind: 'profit',
+    benefit: 70,
+    minAmount: 50_000_000,
+    maxAmount: 800_000_000,
+    amountLabel: '۸۰۰ میلیون تومان',
+    termMonths: 48,
+    termLabel: '۴۸ ماه',
+    speed: 80,
+    digital: 85,
+    friction: 25,
+    collateral: 'اعتبارسنجی و سفته دیجیتال',
+    collateralKind: 'promissory',
+    confidence: 'high',
+    lastUpdated: '2026-09-19',
+    autoDiscovered: true,
+    source: {
+      title: 'پرتال رسمی بانک خاورمیانه',
+      url: 'https://middleeastbank.ir/loans/elites',
+      kind: 'direct',
+      checked: '2026-09-19',
+    },
+  };
+
+  // ۱) ادغام در پایگاه داده
+  const { merged, stats } = mergeProducts(existingProducts, [newlyIntroducedProduct]);
+  assert.equal(stats.added, 1, 'محصول جدید باید با موفقیت اضافه شود');
+  assert.equal(stats.updated, 0);
+  assert.equal(merged.length, 2, 'تعداد کل محصولات افزایش می‌یابد');
+
+  const addedRecord = merged.find((p) => p.id === 'rade-99901');
+  assert.ok(addedRecord, 'رکورد جدید در خروجی ادغام حضور دارد');
+  assert.equal(addedRecord.bank, 'بانک خاورمیانه');
+  assert.equal(addedRecord.stale, false, 'محصول تازه به هیچ وجه نباید stale باشد');
+
+  // ۲) نرمال‌سازی در وضعیت برنامه
+  const normalized = normalizeProduct(addedRecord);
+  assert.equal(normalized.bank, 'بانک خاورمیانه');
+  assert.equal(normalized.contractType, 'non-partnership', 'عقد به درستی استنتاج می‌شود');
+
+  // ۳) امتیازدهی ۵بعدی و رتبه‌بندی
+  const scored = scoreProduct(normalized, {
+    benefit: 35, speed: 20, digital: 15, friction: 15, fresh: 15,
+  }, { inflation: 51.9 });
+
+  assert.ok(scored.score > 0 && scored.score <= 100, 'امتیاز نهایی باید در بازه ۰ تا ۱۰۰ باشد');
+  assert.ok(scored.realRate < 0, 'بازده حقیقی وام با نرخ ۱۸٪ و تورم ۵۱.۹٪ باید منفی باشد');
+  assert.equal(scored.parts.benefit > 0, true, 'امتیاز بعد مزیت محاسبه می‌شود');
+
+  // ۴) در دسترس بودن بانک جدید در فیلترها به صورت پویا
+  const bankSet = new Set(merged.map((p) => p.bank));
+  assert.ok(bankSet.has('بانک خاورمیانه'), 'بانک جدید به طور پویا در فیلترها افزوده می‌شود');
+});
+

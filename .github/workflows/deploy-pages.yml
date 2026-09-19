@@ -52,6 +52,7 @@ jobs:
           cp -r assets dist/
           mkdir -p dist/data
           cp data/products.json data/banks.json data/indicators.json data/meta.json data/bundle.js data/schema.json dist/data/
+          cp data/weekly-report.json dist/data/ 2>/dev/null || true
           touch dist/.nojekyll
           echo "محتوای بسته انتشار:"
           find dist -type f | sort
