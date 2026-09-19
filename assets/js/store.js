@@ -146,6 +146,7 @@ function normalizeProduct(raw, index) {
     stale: raw.stale === true,
     lastUpdated: raw.lastUpdated || null,
     lastSeen: raw.lastSeen || null,
+    lastVerified: raw.lastVerified || null,
     source: raw.source || null,
     extra: raw.extra || {},
   };

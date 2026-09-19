@@ -69,12 +69,13 @@ function checkProduct(p, index) {
   }
 
   // دو تاریخ مستقل باید مستقل سنجیده شوند:
-  //   lastSeen   — آخرین باری که خط لوله این رکورد را دید و بازبینی کرد
+  //   lastSeen/lastVerified/source.checked — آخرین باری که خط لوله یا ممیزی رکورد را بازبینی کرد
   //   lastUpdated — آخرین باری که خود منبع (صفحه بانک) به‌روز شد
-  // اگر این دو یکی گرفته شوند، رکوردی که امروز واکشی شده ولی صفحه‌اش ماه‌ها
+  // اگر این دو یکی گرفته شوند، رکوردی که به‌تازگی واکشی شده ولی صفحه‌اش ماه‌ها
   // دست‌نخورده مانده، «کنترل‌نشده» گزارش می‌شود و هشدار بی‌معنا می‌شود.
-  if (p.lastSeen || p.lastUpdated) {
-    const checkedAge = daysSince(p.lastSeen || p.lastUpdated);
+  const lastChecked = p.lastSeen || p.lastVerified || p.source?.checked || p.lastUpdated;
+  if (lastChecked) {
+    const checkedAge = daysSince(lastChecked);
     if (checkedAge > 14) {
       warn(`${at}: ${checkedAge} روز از آخرین بازبینی خط لوله گذشته است`);
     }

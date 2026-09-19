@@ -240,3 +240,58 @@ export function loanSummary(product, opts = {}) {
     difference: Math.abs(standard.totalInterest - legacy.totalInterest),
   };
 }
+
+/**
+ * شبیه‌ساز مسیر ذوب تورمی اقساط وام.
+ *
+ * در تورم بالا، قدرت خرید قسط اسمی ثابت با گذشت هر سال فرسایش می‌یابد.
+ * این تابع ارزش واقعی هر قسط و درصد افت بار پرداخت برای وام‌گیرنده را محاسبه می‌کند.
+ *
+ * @param {number} installment مبلغ اسمی قسط ماهانه (تومان)
+ * @param {number} months کل دوره بازپرداخت (ماه)
+ * @param {number} annualInflation نرخ تورم سالانه فرضی (درصد)
+ * @returns {Array<{year:number, nominalInstallment:number, realPurchasingPower:number, erosionPercent:number}>}
+ */
+export function installmentInflationTrajectory(installment, months, annualInflation) {
+  if (!installment || !months || !annualInflation || annualInflation <= 0) return [];
+  const years = Math.ceil(months / 12);
+  const trajectory = [];
+
+  for (let y = 1; y <= years; y++) {
+    const discount = (1 + annualInflation / 100) ** (y - 0.5);
+    const realPower = Math.round(installment / discount);
+    const erosion = Math.round((1 - realPower / installment) * 100);
+    trajectory.push({
+      year: y,
+      nominalInstallment: installment,
+      realPurchasingPower: realPower,
+      erosionPercent: Math.min(99, Math.max(0, erosion)),
+    });
+  }
+  return trajectory;
+}
+
+/**
+ * تحلیل فرصت: دریافت وام و تخصیص به گزینه‌های با درآمد ثابت (آربیتراژ ریالی).
+ *
+ * @param {number} principal مبلغ وام
+ * @param {number} installment قسط ماهانه
+ * @param {number} months مدت اقساط
+ * @param {number} alternativeAnnualYield نرخ بازده سالانه گزینه جایگزین (درصد)
+ * @returns {{totalReinvestmentReturn:number, totalLoanRepayment:number, netGainOrLoss:number, isProfitable:boolean}}
+ */
+export function loanArbitrageAnalysis(principal, installment, months, alternativeAnnualYield) {
+  if (!principal || !installment || !months || !alternativeAnnualYield) {
+    return { totalReinvestmentReturn: 0, totalLoanRepayment: 0, netGainOrLoss: 0, isProfitable: false };
+  }
+  const totalLoanRepayment = installment * months;
+  const years = months / 12;
+  const totalReinvestmentReturn = Math.round(principal * ((1 + alternativeAnnualYield / 100) ** years));
+  const netGainOrLoss = totalReinvestmentReturn - totalLoanRepayment;
+  return {
+    totalReinvestmentReturn,
+    totalLoanRepayment,
+    netGainOrLoss,
+    isProfitable: netGainOrLoss > 0,
+  };
+}
