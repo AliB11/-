@@ -36,6 +36,47 @@ const MIME = {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host}`);
+
+    // پشتیبانی از CORS preflight
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      });
+      res.end();
+      return;
+    }
+
+    // درگاه‌های API برای همگام‌سازی و استعلام زنده
+    if (req.method === 'POST' && (url.pathname === '/api/refresh' || url.pathname === '/api/sync')) {
+      try {
+        const { syncWeekly } = await import('./sync-weekly.mjs');
+        const result = await syncWeekly({ offline: false });
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+        });
+        res.end(JSON.stringify({ ok: true, report: result?.report ?? {} }));
+      } catch (err) {
+        res.writeHead(500, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+        });
+        res.end(JSON.stringify({ ok: false, error: err.message }));
+      }
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/status') {
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+      });
+      res.end(JSON.stringify({ ok: true, timestamp: new Date().toISOString() }));
+      return;
+    }
+
     let filePath = decodeURIComponent(url.pathname);
     if (filePath.endsWith('/')) filePath += 'index.html';
 

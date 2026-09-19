@@ -1004,6 +1004,21 @@ export function dataModalHTML() {
           </p>`
     }
 
+    <div class="section-title">به‌روزرسانی و همگام‌سازی زنده</div>
+    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--rd-md);padding:var(--sp-3);margin-block-end:var(--sp-4)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);flex-wrap:wrap">
+        <div>
+          <div style="font-weight:700;font-size:var(--fs-sm);color:var(--text-1);margin-block-end:2px">استعلام فوری و بازخوانی آخرین داده‌ها</div>
+          <div style="font-size:var(--fs-2xs);color:var(--text-3);line-height:1.7">
+            دریافت تازه‌ترین نرخ‌ها، محصولات جدید بانک‌ها، ممیزی ناهنجاری‌ها و بازسازی رتبه‌بندی.
+          </div>
+        </div>
+        <button class="btn btn--primary btn--sm" type="button" data-action="sync-data-now">
+          <span class="refresh-icon" aria-hidden="true">↻</span> استعلام و همگام‌سازی
+        </button>
+      </div>
+    </div>
+
     <div class="section-title">سازوکار ممیزی هفتگی و درون‌ریزی داده</div>
     <div class="spec-grid" style="margin-block-end:var(--sp-3)">
       <div class="spec">

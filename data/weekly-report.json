@@ -183,8 +183,8 @@
     "loyalty": 10,
     "total": 194
   },
-  "durationMs": 30,
-  "generatedAt": "2026-09-19T04:56:13.108Z",
+  "durationMs": 18257,
+  "generatedAt": "2026-09-19T05:26:05.902Z",
   "macro": {
     "depositCap1y": 23,
     "inflationAnnual": 69.9,
@@ -199,10 +199,30 @@
     "unchanged": 0,
     "updated": 0
   },
-  "mode": "offline-audit",
-  "period": "هفته منتهی به 28 شهریور 1405",
+  "mode": "weekly-sync",
+  "period": "هفته منتهی به ۲۸ شهریور ۱۴۰۵",
   "signature": "dc71b3ae0ca02df0",
-  "sources": [],
+  "sources": [
+    {
+      "error": "شبکه در دسترس نبود — https://www.rade.ir/loan-sitemap.xml",
+      "ms": 2495,
+      "name": "rade.ir",
+      "ok": false
+    },
+    {
+      "ms": 4170,
+      "name": "macro-indicators",
+      "ok": true,
+      "touched": []
+    },
+    {
+      "ms": 11566,
+      "name": "bank-sites",
+      "ok": true,
+      "reachable": 0,
+      "targets": 20
+    }
+  ],
   "stats": {
     "autoProducts": 121,
     "curatedProducts": 73,

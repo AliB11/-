@@ -10,7 +10,7 @@ import {
   $, esc, fa, faNum, faToman, faPercent, debounce, storage, todayISO,
 } from './util.js';
 import {
-  store, loadData, recalculate, filtered, summary, saveFilters, saveWeights,
+  store, loadData, reloadFreshData, recalculate, filtered, summary, saveFilters, saveWeights,
   saveCompare, applyPreset, availableBanksIn, CATEGORY_META, CONTRACT_META, deriveContractType,
 } from './store.js';
 import { DEFAULT_WEIGHTS, WEIGHT_META, PRESETS } from './score.js';
@@ -417,6 +417,50 @@ function resetLocal() {
   setTimeout(() => location.reload(), 700);
 }
 
+/* ---------- همگام‌سازی دستی و زنده ---------- */
+
+async function manualRefresh() {
+  const btns = document.querySelectorAll?.('[data-action="manual-refresh"], [data-action="sync-data-now"]') ?? [];
+  const icons = document.querySelectorAll?.('.refresh-icon') ?? [];
+
+  icons.forEach((ic) => ic.classList.add('is-spinning'));
+  btns.forEach((b) => b.setAttribute('disabled', 'true'));
+
+  toast('در حال استعلام و همگام‌سازی آخرین تغییرات داده…', 'warn');
+
+  let serverSynced = false;
+  try {
+    const res = await fetch('/api/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    }).catch(() => null);
+
+    if (res && res.ok) {
+      const data = await res.json();
+      if (data?.ok) serverSynced = true;
+    }
+  } catch {
+    // در محیط ایستا درگاه سرور در دسترس نیست
+  }
+
+  const reloadRes = await reloadFreshData();
+  icons.forEach((ic) => ic.classList.remove('is-spinning'));
+  btns.forEach((b) => b.removeAttribute('disabled'));
+
+  if (reloadRes.ok) {
+    renderFilters();
+    renderSoon();
+    toast(
+      serverSynced
+        ? `✓ همگام‌سازی زنده سرور انجام شد (${fa(reloadRes.count)} محصول).`
+        : `✓ داده‌ها با موفقیت از مخزن بازخوانی شدند (${fa(reloadRes.count)} محصول).`,
+      'good',
+    );
+  } else {
+    toast(`خطا در بازخوانی داده‌ها: ${reloadRes.error}`, 'bad');
+  }
+}
+
 /* ---------- رویدادها ---------- */
 
 function bindEvents() {
@@ -515,6 +559,10 @@ function bindEvents() {
         break;
       case 'calc-reset':
         resetCalculator(actionEl.closest('.drawer, .modal') ?? document);
+        break;
+      case 'manual-refresh':
+      case 'sync-data-now':
+        manualRefresh();
         break;
       case 'open-data':
         openModal('#data-modal', view.dataModalHTML());
